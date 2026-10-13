@@ -8,6 +8,7 @@ import { useLanguageStore } from '../store/useLanguageStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
 import { useRecentViewedStore } from '../store/useRecentViewedStore';
 import { useCompareStore } from '../store/useCompareStore';
+import { getSafeImage } from '../utils/image';
 
 interface ProductCardProps {
   product: Product;
@@ -125,7 +126,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         className="relative block aspect-square bg-[#f8fafc] rounded-2xl overflow-hidden mb-3.5 group-hover:bg-[#f1f5f9] transition-colors"
       >
         <img
-          src={product.thumbnail || product.images[0]}
+          src={getSafeImage(product.thumbnail || product.images?.[0])}
           alt={title}
           className="w-full h-full object-cover object-center group-hover:scale-108 transition-transform duration-500"
           loading="lazy"

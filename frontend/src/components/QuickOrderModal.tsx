@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, CheckCircle2, ShieldCheck, Truck, Zap } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { Product } from '../types';
@@ -7,6 +7,7 @@ import { useCurrencyStore } from '../store/useCurrencyStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { Link } from 'react-router-dom';
 import { api } from '../services/api';
+import { getSafeImage } from '../utils/image';
 
 interface QuickOrderModalProps {
   product: Product | null;
@@ -15,7 +16,13 @@ interface QuickOrderModalProps {
 
 export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({ product, onClose }) => {
   if (!product) return null;
+  return <QuickOrderModalContent product={product} onClose={onClose} />;
+};
 
+const QuickOrderModalContent: React.FC<{ product: Product; onClose: () => void }> = ({
+  product,
+  onClose,
+}) => {
   const { lang } = useLanguageStore();
   const { formatPrice } = useCurrencyStore();
   const { user } = useAuthStore();
@@ -31,6 +38,14 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({ product, onClo
   const [address, setAddress] = useState(user?.addresses?.find((a: any) => a.isDefault)?.street || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState<any>(null);
+
+  useEffect(() => {
+    if (user) {
+      if (!name) setName(user.name || '');
+      if (!phone) setPhone(user.phone || '');
+      if (!address) setAddress(user.addresses?.find((a: any) => a.isDefault)?.street || '');
+    }
+  }, [user]);
 
   const unitPrice = product.discountPrice || product.price;
   const subTotal = unitPrice * quantity;
@@ -145,7 +160,7 @@ export const QuickOrderModal: React.FC<QuickOrderModalProps> = ({ product, onClo
               {/* Product Info Bar */}
               <div className="flex items-center gap-3 p-3 bg-emerald-50 rounded-2xl border border-emerald-100">
                 <img
-                  src={product.thumbnail || product.images[0]}
+                  src={getSafeImage(product.thumbnail || product.images?.[0])}
                   alt={product.title}
                   className="w-14 h-14 object-cover rounded-xl bg-white border border-slate-100"
                 />

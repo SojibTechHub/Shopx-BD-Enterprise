@@ -5,6 +5,7 @@ import { useRecentViewedStore } from '../store/useRecentViewedStore';
 import { useLanguageStore } from '../store/useLanguageStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
 import { useCartStore } from '../store/useCartStore';
+import { getSafeImage } from '../utils/image';
 
 export const RecentViewedDrawer: React.FC = () => {
   const { items, isOpen, setIsOpen, clearAll } = useRecentViewedStore();
@@ -86,7 +87,7 @@ export const RecentViewedDrawer: React.FC = () => {
                       className="w-16 h-16 rounded-lg overflow-hidden bg-slate-800 shrink-0 border border-slate-700/50 relative"
                     >
                       <img
-                        src={item.thumbnail}
+                        src={getSafeImage(item.thumbnail || (item as any).images?.[0])}
                         alt={title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                       />

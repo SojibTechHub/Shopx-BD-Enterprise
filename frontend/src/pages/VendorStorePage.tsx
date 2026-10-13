@@ -241,15 +241,19 @@ export const VendorStorePage: React.FC = () => {
       </div>
 
       {/* Modals */}
-      <QuickOrderModal
-        product={quickOrderProduct}
-        onClose={() => setQuickOrderProduct(null)}
-      />
-      <ProductDetailModal
-        product={quickViewProduct}
-        onClose={() => setQuickViewProduct(null)}
-        onQuickOrder={(prod) => setQuickOrderProduct(prod)}
-      />
+      {quickOrderProduct && (
+        <QuickOrderModal
+          product={quickOrderProduct}
+          onClose={() => setQuickOrderProduct(null)}
+        />
+      )}
+      {quickViewProduct && (
+        <ProductDetailModal
+          product={quickViewProduct}
+          onClose={() => setQuickViewProduct(null)}
+          onQuickOrder={(prod) => setQuickOrderProduct(prod)}
+        />
+      )}
     </div>
   );
 };

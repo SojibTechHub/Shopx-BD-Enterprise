@@ -9,7 +9,7 @@ import { authenticate, optionalAuth, authorize } from '../middleware/auth.js';
 
 const router = Router();
 
-router.post('/', authenticate, createOrder);
+router.post('/', optionalAuth, createOrder);
 router.get('/track', trackOrder);
 router.get('/my-orders', authenticate, getMyOrders);
 router.put('/:id/status', authenticate, authorize('admin', 'vendor', 'rider'), updateOrderStatus);

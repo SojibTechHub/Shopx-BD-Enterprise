@@ -3,6 +3,7 @@ import { Sparkles, Plus, Zap, ArrowRight, ShieldCheck, Check } from 'lucide-reac
 import { useCartStore } from '../store/useCartStore';
 import { useLanguageStore } from '../store/useLanguageStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
+import { getSafeImage } from '../utils/image';
 
 export const ComboDealsSection: React.FC<{ onQuickOrder?: (product: any) => void }> = ({
   onQuickOrder,
@@ -100,7 +101,7 @@ export const ComboDealsSection: React.FC<{ onQuickOrder?: (product: any) => void
                 {combo.items.map((it, idx) => (
                   <React.Fragment key={idx}>
                     <div className="w-20 h-20 rounded-2xl overflow-hidden bg-white border border-slate-200 p-1 shadow-sm flex flex-col items-center">
-                      <img src={it.img} alt={it.name} className="w-full h-12 object-cover rounded-xl" />
+                      <img src={getSafeImage(it.img)} alt={it.name} className="w-full h-12 object-cover rounded-xl" />
                       <span className="text-[9px] font-bold text-slate-600 truncate mt-1 max-w-full px-1">
                         {lang === 'bn' ? it.bn : it.name}
                       </span>

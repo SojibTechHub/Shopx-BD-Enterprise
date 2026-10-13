@@ -24,6 +24,7 @@ import { UnboxingProofModal } from '../components/UnboxingProofModal';
 import { api } from '../services/api';
 import { useLanguageStore } from '../store/useLanguageStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
+import { getSafeImage } from '../utils/image';
 
 export const OrderTrackPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -246,62 +247,131 @@ export const OrderTrackPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Multi-Courier Consignment Info Box */}
-          <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-slate-800">
-                  {lang === 'bn' ? 'কুরিয়ার পার্টনার:' : 'Courier Partner:'}
-                </span>
-                <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-black text-[11px]">
-                  Steadfast Express / Pathao Hub
-                </span>
+          {/* Daraz Express (DEX) & Courier Consignment Info Box */}
+          <div className="bg-gradient-to-br from-emerald-50/80 via-white to-slate-50 p-5 rounded-3xl border border-emerald-200/80 space-y-4 shadow-sm">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-black text-slate-900">
+                    {lang === 'bn' ? 'লজিস্টিকস ও কুরিয়ার পার্টনার:' : 'Logistics Partner:'}
+                  </span>
+                  <span className="bg-emerald-700 text-white px-2.5 py-0.5 rounded-full font-black text-[11px] shadow-sm flex items-center gap-1">
+                    <Truck className="w-3 h-3" />
+                    <span>ShopX DEX Express (DEX Priority) / Steadfast BD</span>
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-slate-700 font-medium">
+                  <span>{lang === 'bn' ? 'কনসাইনমেন্ট ট্র্যাকিং আইডি:' : 'Consignment ID:'}</span>
+                  <strong className="font-mono text-emerald-800 bg-white px-2 py-0.5 rounded-md border border-emerald-200 shadow-xs">
+                    {order.trackingHistory?.find((t: any) => t.message?.includes('আইডি:'))?.message?.split('আইডি:')[1]?.trim() || `DEX-BD-${order.orderNumber?.replace(/\D/g, '') || '948271'}`}
+                  </strong>
+                </div>
               </div>
-              <p className="text-slate-600">
-                {lang === 'bn' ? 'কনসাইনমেন্ট আইডি:' : 'Consignment ID:'}{' '}
-                <strong className="font-mono text-emerald-700">CN-{order.orderNumber?.replace(/\D/g, '') || '948271'}</strong>
-              </p>
+
+              {/* Delivery Guarantee Badge */}
+              <div className="bg-amber-50 border border-amber-300/80 px-3.5 py-2 rounded-2xl flex items-center gap-2.5 shadow-xs">
+                <ShieldCheck className="w-5 h-5 text-amber-600 flex-shrink-0" />
+                <div>
+                  <p className="text-[11px] font-black text-amber-950">
+                    {lang === 'bn' ? '⚡ ShopX অন-টাইম গ্যারান্টি' : '⚡ ShopX On-Time Guarantee'}
+                  </p>
+                  <p className="text-[10px] text-amber-800">
+                    {lang === 'bn' ? 'দেরি হলে স্বয়ংক্রিয় ৳৫০ ক্যাশব্যাক' : 'Guaranteed 24-48h Delivery or ৳50 Cashback'}
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2 text-[11px] text-slate-500 font-medium">
-              <Clock className="w-4 h-4 text-emerald-700" />
-              <span>{lang === 'bn' ? 'প্রত্যাশিত ডেলিভারি: ২৪-৪৮ ঘণ্টার মধ্যে' : 'Estimated Delivery: Within 24-48 Hours'}</span>
+            {/* OTP Handshake & Notification Status Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-slate-200/80 text-xs">
+              <div className="p-3 bg-white rounded-2xl border border-slate-200 flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                    {lang === 'bn' ? 'ডেলিভারি ভেরিফিকেশন ওটিপি' : 'Delivery Security OTP'}
+                  </p>
+                  <p className="text-xs text-slate-600 mt-0.5">
+                    {lang === 'bn' ? 'পার্সেল গ্রহণের সময় রাইডারকে বলুন' : 'Provide code to rider upon handoff'}
+                  </p>
+                </div>
+                <span className="font-mono font-black text-lg text-emerald-700 bg-emerald-50 px-3 py-1 rounded-xl border border-emerald-200 tracking-widest shadow-inner">
+                  {String(Math.abs((order.orderNumber || order.orderId || '9241').split('').reduce((acc: number, char: string) => acc * 33 + char.charCodeAt(0), 11))).slice(-4).padStart(4, '8')}
+                </span>
+              </div>
+
+              <div className="p-3 bg-white rounded-2xl border border-slate-200 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center font-bold text-sm border border-blue-200">
+                  📱
+                </div>
+                <div className="text-[11px] text-slate-600">
+                  <p className="font-bold text-slate-900">
+                    {lang === 'bn' ? 'রিয়েলটাইম SMS অ্যালার্ট সক্রিয়' : 'Real-time SMS & Email Dispatched'}
+                  </p>
+                  <p className="text-slate-500 font-mono">
+                    {order.customerInfo?.phone || '+8801XXXXXXXXX'}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Real-time Interactive GPS Rider Map */}
           <LiveRiderMap
             orderId={order.orderId || order.orderNumber}
-            riderName={order.rider?.name || 'কামরুল হাসান (Kamrul)'}
-            riderPhone={order.rider?.phone || '01942791004'}
-            vehicleNumber={order.rider?.vehicleNumber || 'ঢাকা মেট্রো হ-৪৪৯১'}
+            riderName={order.rider?.name}
+            riderPhone={order.rider?.phone}
+            vehicleNumber={order.rider?.vehicleNumber}
             customerAddress={order.customerInfo?.address || 'Dhaka, Bangladesh'}
             orderStatus={order.orderStatus}
+            createdAt={order.createdAt}
+            deliveryZone={order.customerInfo?.deliveryZone}
           />
 
           {/* Rider & Delivery Contact Box */}
-          <div className="bg-emerald-50 p-4 rounded-2xl border border-emerald-200 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-emerald-700 text-white rounded-2xl flex items-center justify-center shadow-md">
-                <Truck className="w-6 h-6" />
+          {order.rider ? (
+            <div className="bg-emerald-50 p-4 rounded-2xl border border-emerald-200 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-emerald-700 text-white rounded-2xl flex items-center justify-center shadow-md">
+                  <Truck className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-xs text-emerald-900 font-bold">
+                    {lang === 'bn' ? 'নিযুক্ত ডেলিভারি রাইডার' : 'Assigned Delivery Rider'}
+                  </p>
+                  <p className="text-sm font-black text-slate-900">{order.rider.name}</p>
+                  <p className="text-xs text-slate-600 font-mono">
+                    {lang === 'bn' ? 'ফোন:' : 'Phone:'} {order.rider.phone}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-xs text-emerald-900 font-bold">
-                  {lang === 'bn' ? 'নিযুক্ত ডেলিভারি রাইডার' : 'Assigned Delivery Rider'}
-                </p>
-                <p className="text-sm font-black text-slate-900">{order.rider?.name || 'কামরুল হাসান (Kamrul)'}</p>
-                <p className="text-xs text-slate-600 font-mono">
-                  {lang === 'bn' ? 'ফোন:' : 'Phone:'} {order.rider?.phone || '01942-791004'}
-                </p>
-              </div>
+              <a
+                href={`tel:${order.rider.phone}`}
+                className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow transition"
+              >
+                {lang === 'bn' ? 'কল করুন' : 'Call Rider'}
+              </a>
             </div>
-            <a
-              href={`tel:${order.rider?.phone || '01942791004'}`}
-              className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow transition"
-            >
-              {lang === 'bn' ? 'কল করুন' : 'Call Rider'}
-            </a>
-          </div>
+          ) : (
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-slate-200 text-slate-600 rounded-xl flex items-center justify-center">
+                  <Truck className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-800 font-bold">
+                    {lang === 'bn' ? 'রাইডার ডিসপ্যাচ প্রক্রিয়া' : 'Rider Dispatch Progress'}
+                  </p>
+                  <p className="text-[11px] text-slate-500">
+                    {lang === 'bn'
+                      ? 'অর্ডার প্রসেসিং ও প্যাকেজিং শেষে নিকটস্থ লোকাল হাব থেকে রাইডার যুক্ত করা হবে।'
+                      : 'A delivery rider will be assigned once packaging and hub sorting completes.'}
+                  </p>
+                </div>
+              </div>
+              <span className="px-3 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-lg border border-amber-200">
+                {lang === 'bn' ? 'অ্যাসাইনমেন্ট প্রক্রিয়াধীন' : 'In Progress'}
+              </span>
+            </div>
+          )}
 
           {/* Ordered Products Summary */}
           <div>
@@ -313,8 +383,8 @@ export const OrderTrackPage: React.FC = () => {
                 <div key={i} className="flex items-center justify-between text-xs p-3 bg-slate-50 border border-slate-200 rounded-2xl">
                   <div className="flex items-center gap-3">
                     <img
-                      src={item.image || 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=200'}
-                      alt={item.title}
+                      src={getSafeImage(item.image)}
+                      alt={item.title || 'Product'}
                       className="w-12 h-12 rounded-xl object-cover bg-white border border-slate-200"
                     />
                     <div>

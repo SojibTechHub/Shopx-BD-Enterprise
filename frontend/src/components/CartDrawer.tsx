@@ -5,6 +5,7 @@ import { useCartStore } from '../store/useCartStore';
 import { useLanguageStore } from '../store/useLanguageStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
 import { useAuthStore } from '../store/useAuthStore';
+import { getSafeImage } from '../utils/image';
 
 export const CartDrawer: React.FC = () => {
   const navigate = useNavigate();
@@ -142,7 +143,7 @@ export const CartDrawer: React.FC = () => {
                   className="flex gap-3 p-3 bg-white rounded-2xl border border-slate-100 hover:border-emerald-200 shadow-sm transition"
                 >
                   <img
-                    src={item.product.thumbnail || item.product.images[0]}
+                    src={getSafeImage(item.product.thumbnail || item.product.images?.[0])}
                     alt={item.product.title}
                     className="w-16 h-16 object-cover rounded-xl bg-[#f8fafc] border border-slate-100 flex-shrink-0"
                   />

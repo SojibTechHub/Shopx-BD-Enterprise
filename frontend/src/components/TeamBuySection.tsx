@@ -3,6 +3,7 @@ import { Users, Sparkles, Share2, Zap, Check } from 'lucide-react';
 import { Product } from '../types';
 import { useLanguageStore } from '../store/useLanguageStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
+import { getSafeImage } from '../utils/image';
 
 interface TeamBuySectionProps {
   onQuickOrder: (product: Product) => void;
@@ -110,7 +111,7 @@ export const TeamBuySection: React.FC<TeamBuySectionProps> = ({ onQuickOrder }) 
             >
               <div className="flex items-center gap-3">
                 <img
-                  src={deal.thumbnail}
+                  src={getSafeImage(deal.thumbnail || (deal as any).images?.[0])}
                   alt={deal.title}
                   className="w-16 h-16 rounded-xl object-cover bg-white border border-slate-200"
                 />

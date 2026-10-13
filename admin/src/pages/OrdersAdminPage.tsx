@@ -84,9 +84,9 @@ export const OrdersAdminPage: React.FC = () => {
     }
   };
 
-  const handleCourierBook = async (orderId: string, courier: 'steadfast' | 'pathao') => {
+  const handleCourierBook = async (orderId: string, courier: 'steadfast' | 'pathao' | 'dex') => {
     try {
-      const res = await api.post(`/courier/${courier}/book`, { orderId });
+      const res = await api.post(`/courier/${courier}/book`, { orderId, id: orderId });
       if (res.data?.success) {
         alert(
           lang === 'en'
@@ -95,8 +95,11 @@ export const OrdersAdminPage: React.FC = () => {
         );
         fetchOrders();
       }
-    } catch (err) {
-      alert(lang === 'en' ? 'Courier booking failed.' : 'কুরিয়ার বুকিং ব্যর্থ হয়েছে।');
+    } catch (err: any) {
+      alert(
+        (err.response?.data?.message) ||
+        (lang === 'en' ? 'Courier booking failed.' : 'কুরিয়ার বুকিং ব্যর্থ হয়েছে।')
+      );
     }
   };
 
@@ -233,7 +236,14 @@ export const OrdersAdminPage: React.FC = () => {
 
                 {/* Quick Courier API Booking Buttons */}
                 <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <button
+                      onClick={() => handleCourierBook(order._id, 'dex')}
+                      className="px-2.5 py-1 bg-amber-950/80 border border-amber-500/60 text-amber-300 rounded-lg text-[10px] font-bold hover:bg-amber-900 transition shadow-sm"
+                      title="ShopX DEX Express Logistics API"
+                    >
+                      DEX Express
+                    </button>
                     <button
                       onClick={() => handleCourierBook(order._id, 'steadfast')}
                       className="px-2.5 py-1 bg-emerald-950/80 border border-emerald-600/60 text-emerald-400 rounded-lg text-[10px] font-bold hover:bg-emerald-900 transition"
@@ -333,6 +343,13 @@ export const OrdersAdminPage: React.FC = () => {
                     <td className="p-4 whitespace-nowrap">
                       <div className="flex items-center gap-1.5">
                         <button
+                          onClick={() => handleCourierBook(order._id, 'dex')}
+                          className="px-2.5 py-1 bg-amber-950/80 border border-amber-500/60 text-amber-300 rounded-lg text-[10px] font-bold hover:bg-amber-900 transition shadow-sm"
+                          title="ShopX DEX Express Logistics API"
+                        >
+                          DEX
+                        </button>
+                        <button
                           onClick={() => handleCourierBook(order._id, 'steadfast')}
                           className="px-2.5 py-1 bg-emerald-950/80 border border-emerald-600/60 text-emerald-400 rounded-lg text-[10px] font-bold hover:bg-emerald-900 transition shadow-sm"
                           title="Steadfast Courier Booking API"
@@ -421,7 +438,11 @@ export const OrdersAdminPage: React.FC = () => {
               {selectedOrder.items?.map((item: any, i: number) => (
                 <div key={i} className="flex items-center justify-between p-2.5 sm:p-3 bg-slate-950 rounded-2xl text-xs border border-slate-800/60">
                   <div className="flex items-center gap-2.5">
-                    <img src={item.image} alt={item.title} className="w-10 h-10 object-cover rounded-xl bg-slate-800 flex-shrink-0" />
+                    <img
+                      src={item.image && typeof item.image === 'string' && item.image.trim() !== '' ? item.image : 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200'}
+                      alt={item.title || 'Product'}
+                      className="w-10 h-10 object-cover rounded-xl bg-slate-800 flex-shrink-0"
+                    />
                     <div>
                       <p className="font-bold text-white truncate max-w-[140px] sm:max-w-xs">{item.title}</p>
                       <p className="text-slate-400 text-[11px]">{lang === 'en' ? 'Qty:' : 'পরিমাণ:'} {item.quantity}</p>

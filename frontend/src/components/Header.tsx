@@ -34,6 +34,7 @@ import { useCurrencyStore, CURRENCIES, CurrencyCode } from '../store/useCurrency
 import { useWishlistStore } from '../store/useWishlistStore';
 import { api } from '../services/api';
 import { ImageSearchModal } from './ImageSearchModal';
+import { getSafeImage } from '../utils/image';
 
 interface HeaderProps {
   onOpenAI?: () => void;
@@ -405,7 +406,7 @@ export const Header: React.FC<HeaderProps> = ({
                     className="flex items-center gap-3 p-3 hover:bg-emerald-50 transition border-b border-slate-50"
                   >
                     <img
-                      src={item.thumbnail}
+                      src={getSafeImage(item.thumbnail || (item as any).images?.[0])}
                       alt={item.title}
                       className="w-12 h-12 object-cover rounded-xl bg-slate-100"
                     />

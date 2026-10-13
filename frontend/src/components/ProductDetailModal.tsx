@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Star, ShieldCheck, Truck, ShoppingBag, Zap, Flame, Eye } from 'lucide-react';
 import { Product } from '../types';
 import { useCartStore } from '../store/useCartStore';
 import { useLanguageStore } from '../store/useLanguageStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
+import { getSafeImage } from '../utils/image';
 
 interface ProductDetailModalProps {
   product: Product | null;
@@ -17,12 +18,27 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   onQuickOrder,
 }) => {
   if (!product) return null;
+  return (
+    <ProductDetailModalContent
+      product={product}
+      onClose={onClose}
+      onQuickOrder={onQuickOrder}
+    />
+  );
+};
 
+const ProductDetailModalContent: React.FC<{
+  product: Product;
+  onClose: () => void;
+  onQuickOrder?: (product: Product) => void;
+}> = ({ product, onClose, onQuickOrder }) => {
   const { addItem } = useCartStore();
   const { lang } = useLanguageStore();
   const { formatPrice } = useCurrencyStore();
 
-  const [activeImage, setActiveImage] = useState(product.thumbnail || product.images[0]);
+  const [activeImage, setActiveImage] = useState<string>(
+    product.thumbnail || product.images?.[0] || ''
+  );
   const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState(
     product.variants?.[0]?.options?.[0]?.title || ''
@@ -49,7 +65,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           <div className="space-y-4">
             <div className="aspect-square bg-[#f8fafc] rounded-2xl overflow-hidden border border-slate-100">
               <img
-                src={activeImage}
+                src={getSafeImage(activeImage || product.thumbnail || product.images?.[0])}
                 alt={title}
                 className="w-full h-full object-cover object-center transition-all"
               />
@@ -66,7 +82,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                       activeImage === img ? 'border-emerald-600 scale-105' : 'border-transparent opacity-70'
                     }`}
                   >
-                    <img src={img} alt="thumb" className="w-full h-full object-cover" />
+                    <img src={getSafeImage(img)} alt="thumb" className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>

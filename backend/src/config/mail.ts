@@ -1,12 +1,15 @@
 import nodemailer from 'nodemailer';
 
+const port = Number(process.env.SMTP_PORT) || 465;
+const isSecure = port === 465;
+
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: Number(process.env.SMTP_PORT) || 587,
-  secure: false,
-  connectionTimeout: 3500,
-  greetingTimeout: 3500,
-  socketTimeout: 4000,
+  port,
+  secure: isSecure,
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 10000,
   auth: {
     user: process.env.SMTP_USER || 'sojibahmedshorif25@gmail.com',
     pass: process.env.SMTP_PASS || 'txdx mdvk exmz oboa',
@@ -23,24 +26,26 @@ export const sendEmail = async ({
   html: string;
 }): Promise<boolean> => {
   try {
+    let timeoutId: any;
     const sendPromise = transporter.sendMail({
-      from: process.env.EMAIL_FROM || '"Shopx-BD-Enterprise" <sojibahmedshorif25@gmail.com>',
+      from: process.env.EMAIL_FROM || '"ShopX BD Enterprise" <sojibahmedshorif25@gmail.com>',
       replyTo: 'sojibahmedshorif25@gmail.com',
       to,
       subject,
       html,
     });
 
-    const timeoutPromise = new Promise<null>((resolve) =>
-      setTimeout(() => {
-        console.warn(`⏱️ [Nodemailer] SMTP sending timed out after 3.5s for ${to}`);
+    const timeoutPromise = new Promise<null>((resolve) => {
+      timeoutId = setTimeout(() => {
+        console.warn(`⏱️ [Nodemailer] SMTP sending timed out after 10s for ${to}`);
         resolve(null);
-      }, 3500)
-    );
+      }, 10000);
+    });
 
     const result = await Promise.race([sendPromise, timeoutPromise]);
+    if (timeoutId) clearTimeout(timeoutId);
     if (result && 'messageId' in result) {
-      console.log(`📧 [Nodemailer] Email delivered to ${to}: ${result.messageId}`);
+      console.log(`📧 [Nodemailer] Real Email delivered to ${to}: ${result.messageId}`);
       return true;
     }
     return false;

@@ -6,6 +6,7 @@ import { useCartStore } from '../store/useCartStore';
 import { useWishlistStore } from '../store/useWishlistStore';
 import { useLanguageStore } from '../store/useLanguageStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
+import { getSafeImage } from '../utils/image';
 
 interface FlashSaleSectionProps {
   products: Product[];
@@ -135,7 +136,7 @@ export const FlashSaleSection: React.FC<FlashSaleSectionProps> = ({
               {/* Image */}
               <Link to={`/product/${product.slug}`} className="relative block aspect-square bg-slate-50 overflow-hidden">
                 <img
-                  src={product.thumbnail || product.images?.[0]}
+                  src={getSafeImage(product.thumbnail || product.images?.[0])}
                   alt={product.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   loading="lazy"

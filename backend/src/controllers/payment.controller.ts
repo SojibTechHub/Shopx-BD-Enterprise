@@ -3,9 +3,9 @@ import { Request, Response } from 'express';
 import SSLCommerzPayment from 'sslcommerz-lts';
 import { Order } from '../models/Order.js';
 
-const store_id = process.env.SSLCOMMERZ_STORE_ID || 'ecomm6a9bc7473654b';
-const store_passwd = process.env.SSLCOMMERZ_STORE_PASSWORD || 'ecomm6a9bc7473654b@ssl';
-const is_live = process.env.SSLCOMMERZ_SANDBOX === 'false';
+const getStoreId = () => process.env.SSLCOMMERZ_STORE_ID || 'testbox';
+const getStorePasswd = () => process.env.SSLCOMMERZ_STORE_PASSWORD || 'qwerty';
+const getIsLive = () => process.env.SSLCOMMERZ_SANDBOX === 'false';
 
 export const initSSLPayment = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -30,22 +30,24 @@ export const initSSLPayment = async (req: Request, res: Response): Promise<void>
       cancel_url: process.env.SSLCOMMERZ_CANCEL_URL || `http://localhost:5000/api/payment/cancel?tran_id=${tran_id}`,
       ipn_url: `http://localhost:5000/api/payment/ipn`,
       shipping_method: 'Courier',
-      product_name: order.items.map((i) => i.title).join(', '),
+      product_name: order.items.map((i) => i.title).join(', ') || 'ShopX Product',
       product_category: 'General',
       product_profile: 'general',
-      cus_name: order.customerInfo.name,
+      cus_name: order.customerInfo.name || 'Valued Customer',
       cus_email: order.customerInfo.email || 'customer@shopxbd.com',
-      cus_add1: order.customerInfo.address,
+      cus_add1: order.customerInfo.address || 'Dhaka',
       cus_city: order.customerInfo.city || 'Dhaka',
+      cus_postcode: (order.customerInfo as any).postcode || '1207',
       cus_country: 'Bangladesh',
-      cus_phone: order.customerInfo.phone,
-      ship_name: order.customerInfo.name,
-      ship_add1: order.customerInfo.address,
+      cus_phone: order.customerInfo.phone || '01700000000',
+      ship_name: order.customerInfo.name || 'Valued Customer',
+      ship_add1: order.customerInfo.address || 'Dhaka',
       ship_city: order.customerInfo.city || 'Dhaka',
+      ship_postcode: (order.customerInfo as any).postcode || '1207',
       ship_country: 'Bangladesh',
     };
 
-    const sslcz = new (SSLCommerzPayment as any)(store_id, store_passwd, is_live);
+    const sslcz = new (SSLCommerzPayment as any)(getStoreId(), getStorePasswd(), getIsLive());
     const apiResponse = await sslcz.init(data);
 
     if (apiResponse?.GatewayPageURL) {
@@ -57,7 +59,7 @@ export const initSSLPayment = async (req: Request, res: Response): Promise<void>
     } else {
       res.status(400).json({
         success: false,
-        message: 'SSLCommerz payment gateway initialization failed.',
+        message: apiResponse?.failedreason || 'SSLCommerz payment gateway initialization failed.',
         response: apiResponse,
       });
     }

@@ -4,6 +4,7 @@ import { useCompareStore } from '../store/useCompareStore';
 import { useCartStore } from '../store/useCartStore';
 import { useLanguageStore } from '../store/useLanguageStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
+import { getSafeImage } from '../utils/image';
 
 export const ProductCompareModal: React.FC = () => {
   const { items, isOpen, setIsOpen, removeFromCompare, clearCompare } = useCompareStore();
@@ -112,7 +113,7 @@ export const ProductCompareModal: React.FC = () => {
                     <div className="space-y-3">
                       <div className="aspect-square bg-slate-900 rounded-xl overflow-hidden border border-slate-800">
                         <img
-                          src={prod.thumbnail || prod.images[0]}
+                          src={getSafeImage(prod.thumbnail || prod.images?.[0])}
                           alt={prod.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                         />

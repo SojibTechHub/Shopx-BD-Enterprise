@@ -21,6 +21,7 @@ import { useCurrencyStore } from '../store/useCurrencyStore';
 import { useLanguageStore } from '../store/useLanguageStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { api } from '../services/api';
+import { getSafeImage } from '../utils/image';
 
 // Complete 64 Districts of Bangladesh with Divisions & Coordinates
 export const BD_DISTRICTS = [
@@ -356,17 +357,35 @@ export const CheckoutPage: React.FC = () => {
         clearCart();
 
         if (paymentMethod === 'sslcommerz') {
-          const payRes = await api.post('/payment/sslcommerz/init', { orderId: order.orderId });
-          if (payRes.data.success && payRes.data.gatewayUrl) {
-            window.location.href = payRes.data.gatewayUrl;
-            return;
+          try {
+            const payRes = await api.post('/payment/sslcommerz/init', { orderId: order.orderId });
+            if (payRes.data.success && payRes.data.gatewayUrl) {
+              window.location.href = payRes.data.gatewayUrl;
+              return;
+            } else {
+              alert(payRes.data?.message || (lang === 'bn' ? 'অনলাইন পেমেন্ট গেটওয়েতে সংযোগ করতে ব্যর্থ হয়েছে।' : 'Failed to connect to online payment gateway.'));
+            }
+          } catch (payErr: any) {
+            alert(payErr.response?.data?.message || (lang === 'bn' ? 'পেমেন্ট গেটওয়ে সংযোগে ত্রুটি হয়েছে।' : 'Payment gateway connection error.'));
           }
         }
 
         navigate(`/order-success?orderId=${order.orderId}&status=confirmed`);
       }
     } catch (err: any) {
-      alert(err.response?.data?.message || (lang === 'bn' ? 'অর্ডার প্রক্রিয়াধীন করতে সমস্যা হয়েছে।' : 'Failed to place order. Please try again.'));
+      const msg = err.response?.data?.message || (lang === 'bn' ? 'অর্ডার প্রক্রিয়াধীন করতে সমস্যা হয়েছে।' : 'Failed to place order. Please try again.');
+      alert(msg);
+      if (err.response?.status === 400 && (msg.includes('পণ্য') || msg.includes('কার্ট') || msg.includes('Product') || msg.includes('Cart'))) {
+        const shouldClear = window.confirm(
+          lang === 'bn'
+            ? 'আপনার কার্টে পুরনো বা মেয়াদোত্তীর্ণ পণ্য রয়েছে। আপনি কি কার্টটি রিসেট করতে চান?'
+            : 'Your cart contains outdated items. Would you like to reset your cart?'
+        );
+        if (shouldClear) {
+          clearCart();
+          navigate('/products');
+        }
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -581,6 +600,46 @@ export const CheckoutPage: React.FC = () => {
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* SSLCommerz Instant Online Payment */}
+              <label
+                className={`p-4 rounded-2xl border-2 cursor-pointer transition flex items-center justify-between col-span-1 sm:col-span-2 ${
+                  paymentMethod === 'sslcommerz'
+                    ? 'border-indigo-600 bg-indigo-50/70 shadow-sm ring-2 ring-indigo-500/20'
+                    : 'border-slate-200 hover:border-slate-300 bg-white'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <input
+                    type="radio"
+                    name="payment"
+                    value="sslcommerz"
+                    checked={paymentMethod === 'sslcommerz'}
+                    onChange={() => setPaymentMethod('sslcommerz')}
+                    className="w-4 h-4 text-indigo-600"
+                  />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-xs font-bold text-slate-900">
+                        {lang === 'bn' ? 'অনলাইন অটো পেমেন্ট (SSLCommerz Gateway)' : 'Instant Online Payment (SSLCommerz Gateway)'}
+                      </h4>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 text-white tracking-wide shadow-xs">
+                        RECOMMENDED
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      {lang === 'bn'
+                        ? 'বিকাশ, নগদ, রকেট, ভিসা/মাস্টারকার্ড ও ইন্টারনেট ব্যাংকিং (স্বয়ংক্রিয় ভেরিফাইড পেমেন্ট)'
+                        : 'bKash, Nagad, Rocket, Visa, Mastercard, AMEX & Net Banking automated instant payment'}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                  <span className="px-2 py-0.5 bg-pink-100 text-pink-700 font-black text-[10px] rounded-lg border border-pink-200">bKash</span>
+                  <span className="px-2 py-0.5 bg-amber-100 text-amber-700 font-black text-[10px] rounded-lg border border-amber-200">Nagad</span>
+                  <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 font-black text-[10px] rounded-lg border border-indigo-200">Cards</span>
+                </div>
+              </label>
+
               {/* Cash On Delivery */}
               <label
                 className={`p-4 rounded-2xl border-2 cursor-pointer transition flex items-center justify-between ${
@@ -771,7 +830,7 @@ export const CheckoutPage: React.FC = () => {
               {items.map((item, idx) => (
                 <div key={`${item.product._id}-${idx}`} className="flex items-center gap-3 pt-2">
                   <img
-                    src={item.product.thumbnail || item.product.images[0]}
+                    src={getSafeImage(item.product.thumbnail || item.product.images?.[0])}
                     alt={item.product.title}
                     className="w-12 h-12 rounded-xl object-cover bg-slate-50 border border-slate-100 flex-shrink-0"
                   />

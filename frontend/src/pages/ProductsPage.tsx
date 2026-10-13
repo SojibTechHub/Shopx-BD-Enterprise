@@ -7,6 +7,7 @@ import { ProductCompareModal } from '../components/ProductCompareModal';
 import { Product } from '../types';
 import { api } from '../services/api';
 import { useLanguageStore } from '../store/useLanguageStore';
+import { getSafeImage } from '../utils/image';
 import { useCurrencyStore } from '../store/useCurrencyStore';
 import { useCartStore } from '../store/useCartStore';
 import {
@@ -493,7 +494,7 @@ export const ProductsPage: React.FC = () => {
                 <div className="flex items-center gap-5">
                   <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-slate-50 overflow-hidden border border-slate-100 flex-shrink-0">
                     <img
-                      src={product.thumbnail || product.images[0]}
+                      src={getSafeImage(product.thumbnail || product.images?.[0])}
                       alt={product.title}
                       className="w-full h-full object-cover group-hover:scale-108 transition duration-500"
                     />
@@ -582,16 +583,20 @@ export const ProductsPage: React.FC = () => {
       <ProductCompareModal />
 
       {/* Modals for Quick Order & View */}
-      <QuickOrderModal
-        product={quickOrderProduct}
-        onClose={() => setQuickOrderProduct(null)}
-      />
+      {quickOrderProduct && (
+        <QuickOrderModal
+          product={quickOrderProduct}
+          onClose={() => setQuickOrderProduct(null)}
+        />
+      )}
 
-      <ProductDetailModal
-        product={quickViewProduct}
-        onClose={() => setQuickViewProduct(null)}
-        onQuickOrder={(p) => setQuickOrderProduct(p)}
-      />
+      {quickViewProduct && (
+        <ProductDetailModal
+          product={quickViewProduct}
+          onClose={() => setQuickViewProduct(null)}
+          onQuickOrder={(p) => setQuickOrderProduct(p)}
+        />
+      )}
     </div>
   );
 };

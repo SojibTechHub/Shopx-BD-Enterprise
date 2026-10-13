@@ -315,16 +315,20 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* Modals for Quick View, Quick Order, Live Commerce & Image Search */}
-      <QuickOrderModal
-        product={quickOrderProduct}
-        onClose={() => setQuickOrderProduct(null)}
-      />
+      {quickOrderProduct && (
+        <QuickOrderModal
+          product={quickOrderProduct}
+          onClose={() => setQuickOrderProduct(null)}
+        />
+      )}
 
-      <ProductDetailModal
-        product={quickViewProduct}
-        onClose={() => setQuickViewProduct(null)}
-        onQuickOrder={(p) => setQuickOrderProduct(p)}
-      />
+      {quickViewProduct && (
+        <ProductDetailModal
+          product={quickViewProduct}
+          onClose={() => setQuickViewProduct(null)}
+          onQuickOrder={(p) => setQuickOrderProduct(p)}
+        />
+      )}
 
       <LiveStreamShopModal
         isOpen={isLiveOpen}

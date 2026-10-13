@@ -18,6 +18,7 @@ import {
 import { Product } from '../types';
 import { api } from '../services/api';
 import { useCartStore } from '../store/useCartStore';
+import { getSafeImage } from '../utils/image';
 import { useLanguageStore } from '../store/useLanguageStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
 import { useRecentViewedStore } from '../store/useRecentViewedStore';
@@ -157,7 +158,7 @@ export const ProductDetailPage: React.FC = () => {
         <div className="lg:col-span-5 space-y-4">
           <div className="aspect-square bg-[#f8fafc] rounded-3xl overflow-hidden border border-slate-200 shadow-inner">
             <img
-              src={activeImage}
+              src={getSafeImage(activeImage || product.thumbnail || product.images?.[0])}
               alt={product.title}
               className="w-full h-full object-cover object-center"
             />
@@ -174,7 +175,7 @@ export const ProductDetailPage: React.FC = () => {
                     activeImage === img ? 'border-emerald-600 scale-105' : 'border-slate-200 opacity-70 hover:opacity-100'
                   }`}
                 >
-                  <img src={img} alt="thumb" className="w-full h-full object-cover" />
+                  <img src={getSafeImage(img)} alt="thumb" className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
@@ -603,10 +604,12 @@ export const ProductDetailPage: React.FC = () => {
       )}
 
       {/* 1-Click Fast Order Modal */}
-      <QuickOrderModal
-        product={isQuickOrderOpen ? product : null}
-        onClose={() => setIsQuickOrderOpen(false)}
-      />
+      {isQuickOrderOpen && (
+        <QuickOrderModal
+          product={product}
+          onClose={() => setIsQuickOrderOpen(false)}
+        />
+      )}
 
       {/* Lab Test Quality Certificate Modal */}
       <LabCertificateModal
