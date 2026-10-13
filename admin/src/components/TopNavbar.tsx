@@ -12,6 +12,7 @@ import {
   LifeBuoy,
   ShoppingCart,
   X,
+  LogOut,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAdminAuthStore } from '../store/useAdminAuthStore';
@@ -19,7 +20,7 @@ import { useSidebarStore } from '../store/useSidebarStore';
 import { useAdminLanguageStore } from '../store/useAdminLanguageStore';
 
 export const TopNavbar: React.FC = () => {
-  const { user } = useAdminAuthStore();
+  const { user, logout } = useAdminAuthStore();
   const { toggleSidebar } = useSidebarStore();
   const { lang, toggleLang, t } = useAdminLanguageStore();
   const [showNotifications, setShowNotifications] = useState(false);
@@ -211,6 +212,17 @@ export const TopNavbar: React.FC = () => {
                 {user?.role === 'admin' ? t('super_admin') : t('vendor_portal')}
               </p>
             </div>
+
+            <button
+              onClick={() => {
+                logout();
+                navigate('/login');
+              }}
+              className="p-2 rounded-xl bg-slate-800/80 hover:bg-rose-950/50 text-slate-400 hover:text-rose-400 border border-slate-700/60 transition shadow-sm ml-1"
+              title={lang === 'en' ? 'Logout from Admin' : 'লগআউট'}
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </header>

@@ -28,7 +28,7 @@ import { useAdminAuthStore } from './store/useAdminAuthStore';
 const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, token } = useAdminAuthStore();
 
-  if (!token && !user) {
+  if (!token || !user) {
     return <Navigate to="/login" replace />;
   }
 
@@ -44,11 +44,27 @@ const ProtectedLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
 };
 
 export const App: React.FC = () => {
-  const { fetchCurrentUser } = useAdminAuthStore();
+  const { fetchCurrentUser, user, token } = useAdminAuthStore();
+  const [isInitializing, setIsInitializing] = React.useState(Boolean(token && !user));
 
   useEffect(() => {
-    fetchCurrentUser();
-  }, [fetchCurrentUser]);
+    if (token && !user) {
+      fetchCurrentUser().finally(() => setIsInitializing(false));
+    } else {
+      setIsInitializing(false);
+    }
+  }, []);
+
+  if (isInitializing) {
+    return (
+      <div className="h-screen bg-slate-950 flex flex-col items-center justify-center text-white space-y-3">
+        <div className="w-12 h-12 rounded-2xl bg-orange-500/20 text-orange-400 border border-orange-500/40 flex items-center justify-center animate-spin text-lg font-black">
+          SX
+        </div>
+        <p className="text-xs text-slate-400 font-mono tracking-widest">VERIFYING 2FA SESSION...</p>
+      </div>
+    );
+  }
 
   return (
     <Router>

@@ -111,14 +111,22 @@ app.use('/api/upload', uploadRouter);
 // Global Error Handler
 app.use(errorHandler);
 
+process.on('uncaughtException', (err) => {
+  console.error('🔥 [Uncaught Exception]:', err);
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('⚠️ [Unhandled Rejection]:', reason);
+});
+
 const PORT = process.env.PORT || 5000;
 
 // Start Server and Connect Database
 const startServer = async () => {
   await connectDB();
-  server.listen(PORT, () => {
-    console.log(`🚀 [ShopX BD Backend] Running on http://localhost:${PORT}`);
+  server.listen(Number(PORT), '0.0.0.0', () => {
+    console.log(`🚀 [ShopX BD Backend] Running on http://localhost:${PORT} and http://127.0.0.1:${PORT}`);
   });
 };
 
 startServer();
+
