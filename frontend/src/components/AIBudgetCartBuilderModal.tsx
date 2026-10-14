@@ -3,6 +3,7 @@ import { X, Sparkles, ShoppingBag, CheckCircle2, ArrowRight, Zap, RefreshCw, Dol
 import { useLanguageStore } from '../store/useLanguageStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
 import { useCartStore } from '../store/useCartStore';
+import { getSafeImage } from '../utils/image';
 
 interface AIBudgetCartBuilderModalProps {
   isOpen: boolean;
@@ -189,7 +190,7 @@ export const AIBudgetCartBuilderModal: React.FC<AIBudgetCartBuilderModalProps> =
               {selectedGoal.items.map((item, idx) => (
                 <div key={idx} className="flex items-center space-x-2.5 p-2 rounded-xl bg-slate-900 border border-slate-800">
                   <img
-                    src={item.image}
+                    src={getSafeImage(item.image)}
                     alt={item.title}
                     className="w-11 h-11 object-cover rounded-lg border border-slate-700"
                   />

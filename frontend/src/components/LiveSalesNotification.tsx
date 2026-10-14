@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingBag, CheckCircle, X, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { getSafeImage } from '../utils/image';
 
 interface SaleItem {
   name: string;
@@ -109,7 +110,7 @@ export const LiveSalesNotification: React.FC = () => {
       <div className="bg-slate-900/95 backdrop-blur-md border border-orange-500/30 shadow-2xl rounded-2xl p-3 flex items-center gap-3 ring-1 ring-orange-500/20 text-slate-100 hover:border-orange-500 transition cursor-pointer">
         <div className="relative flex-shrink-0">
           <img
-            src={currentSale.image}
+            src={getSafeImage(currentSale.image)}
             alt={currentSale.product}
             className="w-12 h-12 rounded-xl object-cover border border-slate-700"
           />

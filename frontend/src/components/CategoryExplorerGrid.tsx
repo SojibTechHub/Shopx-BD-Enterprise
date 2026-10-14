@@ -4,6 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import { useLanguageStore } from '../store/useLanguageStore';
 import { api } from '../services/api';
 import { Product } from '../types';
+import { getSafeImage } from '../utils/image';
 
 export const CategoryExplorerGrid: React.FC = () => {
   const { lang } = useLanguageStore();
@@ -183,7 +184,7 @@ export const CategoryExplorerGrid: React.FC = () => {
               >
                 <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-3xl ${cat.bg} border p-1.5 mb-3 flex items-center justify-center overflow-hidden group-hover:scale-108 transition-all duration-300 shadow-sm group-hover:shadow-md`}>
                   <img
-                    src={cat.image}
+                    src={getSafeImage(cat.image)}
                     alt={cat.name}
                     className="w-full h-full object-cover rounded-2xl"
                     loading="lazy"
@@ -300,7 +301,7 @@ export const CategoryExplorerGrid: React.FC = () => {
               className="flex items-center gap-3 p-3.5 rounded-2xl border border-slate-100 hover:border-emerald-300 hover:bg-emerald-50/40 transition group shadow-sm"
             >
               <img
-                src={item.image}
+                src={getSafeImage(item.image)}
                 alt={item.title}
                 className="w-12 h-12 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform"
               />

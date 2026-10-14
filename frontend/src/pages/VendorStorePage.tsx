@@ -23,6 +23,7 @@ import { Product } from '../types';
 import { api } from '../services/api';
 import { useLanguageStore } from '../store/useLanguageStore';
 import { useCartStore } from '../store/useCartStore';
+import { getSafeImage } from '../utils/image';
 
 export const VendorStorePage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -89,7 +90,7 @@ export const VendorStorePage: React.FC = () => {
         {/* Banner Cover Image */}
         <div className="h-44 sm:h-60 relative w-full overflow-hidden bg-gradient-to-r from-emerald-900 to-slate-900">
           <img
-            src={vendorInfo.banner}
+            src={getSafeImage(vendorInfo.banner, 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&auto=format&fit=crop&q=80')}
             alt="Store Banner"
             className="w-full h-full object-cover opacity-60"
           />
@@ -101,7 +102,7 @@ export const VendorStorePage: React.FC = () => {
           <div className="flex items-center gap-4 sm:gap-6">
             <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl sm:rounded-3xl bg-white p-1 border-2 border-white shadow-xl overflow-hidden flex-shrink-0">
               <img
-                src={vendorInfo.logo}
+                src={getSafeImage(vendorInfo.logo, 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80')}
                 alt="Store Logo"
                 className="w-full h-full object-cover rounded-xl sm:rounded-2xl"
               />

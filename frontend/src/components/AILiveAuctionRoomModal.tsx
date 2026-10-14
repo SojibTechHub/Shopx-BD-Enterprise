@@ -16,6 +16,7 @@ import {
 import { useLanguageStore } from '../store/useLanguageStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
 import { useCartStore } from '../store/useCartStore';
+import { getSafeImage } from '../utils/image';
 
 interface AILiveAuctionRoomModalProps {
   isOpen: boolean;
@@ -172,7 +173,7 @@ export const AILiveAuctionRoomModal: React.FC<AILiveAuctionRoomModalProps> = ({
         {/* Auction Product Details Card */}
         <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col sm:flex-row items-center gap-4">
           <img
-            src={auctionItem.thumbnail}
+            src={getSafeImage(auctionItem.thumbnail)}
             alt={auctionItem.title}
             className="w-24 h-24 sm:w-28 sm:h-28 object-cover rounded-xl border border-slate-700 bg-slate-950 flex-shrink-0"
           />

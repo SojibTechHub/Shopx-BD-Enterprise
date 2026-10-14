@@ -84,14 +84,14 @@ export const OrdersAdminPage: React.FC = () => {
     }
   };
 
-  const handleCourierBook = async (orderId: string, courier: 'steadfast' | 'pathao' | 'dex') => {
+  const handleCourierBook = async (orderId: string, courier: 'steadfast' | 'pathao' | 'dex' | 'redx') => {
     try {
-      const res = await api.post(`/courier/${courier}/book`, { orderId, id: orderId });
+      const res = await api.post(`/courier/${courier}/book`, { orderId, id: orderId, _id: orderId });
       if (res.data?.success) {
         alert(
           lang === 'en'
-            ? `📦 ${res.data.message}\nConsignment ID: ${res.data.consignmentId}`
-            : `📦 ${res.data.message}\nকনসাইনমেন্ট আইডি: ${res.data.consignmentId}`
+            ? `📦 ${res.data.message}\nConsignment ID: ${res.data.consignmentId}\nHub: ${res.data.hub || 'Dispatched'}`
+            : `📦 ${res.data.message}\nকনসাইনমেন্ট আইডি: ${res.data.consignmentId}\nহাব: ${res.data.hub || 'ডিসপ্যাচড'}`
         );
         fetchOrders();
       }
@@ -256,6 +256,13 @@ export const OrdersAdminPage: React.FC = () => {
                     >
                       Pathao
                     </button>
+                    <button
+                      onClick={() => handleCourierBook(order._id, 'redx')}
+                      className="px-2.5 py-1 bg-red-950/80 border border-red-600/60 text-red-300 rounded-lg text-[10px] font-bold hover:bg-red-900 transition"
+                      title="RedX Logistics API"
+                    >
+                      RedX
+                    </button>
                   </div>
 
                   {/* Actions */}
@@ -362,6 +369,13 @@ export const OrdersAdminPage: React.FC = () => {
                           title="Pathao Express Booking API"
                         >
                           Pathao
+                        </button>
+                        <button
+                          onClick={() => handleCourierBook(order._id, 'redx')}
+                          className="px-2.5 py-1 bg-red-950/80 border border-red-600/60 text-red-300 rounded-lg text-[10px] font-bold hover:bg-red-900 transition shadow-sm"
+                          title="RedX Logistics Booking API"
+                        >
+                          RedX
                         </button>
                       </div>
                     </td>

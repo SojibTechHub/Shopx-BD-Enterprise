@@ -14,6 +14,7 @@ import {
 import { useLanguageStore } from '../store/useLanguageStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
 import { useCartStore } from '../store/useCartStore';
+import { getSafeImage } from '../utils/image';
 
 interface AISmartBundleUpsellModalProps {
   isOpen: boolean;
@@ -169,7 +170,7 @@ export const AISmartBundleUpsellModal: React.FC<AISmartBundleUpsellModalProps> =
             {/* Base Product Card */}
             <div className="p-3 rounded-xl bg-slate-900 border border-orange-500/50 flex items-center space-x-3 max-w-xs shadow-md">
               <img
-                src={baseImage}
+                src={getSafeImage(baseImage)}
                 alt={baseTitle}
                 className="w-12 h-12 rounded-lg object-cover bg-slate-800"
               />
@@ -201,7 +202,7 @@ export const AISmartBundleUpsellModal: React.FC<AISmartBundleUpsellModalProps> =
                   {item.selected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                 </div>
                 <img
-                  src={item.image}
+                  src={getSafeImage(item.image)}
                   alt={item.title}
                   className="w-10 h-10 rounded-lg object-cover bg-slate-800"
                 />

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useLanguageStore } from '../store/useLanguageStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
+import { getSafeImage } from '../utils/image';
 
 interface Product3DStudioModalProps {
   isOpen: boolean;
@@ -129,7 +130,7 @@ export const Product3DStudioModal: React.FC<Product3DStudioModalProps> = ({
             }}
           >
             <img
-              src={image}
+              src={getSafeImage(image)}
               alt={title}
               className={`w-56 h-56 sm:w-72 sm:h-72 object-contain filter drop-shadow-[0_20px_30px_rgba(0,0,0,0.8)] transition-all ${
                 showWireframe ? 'opacity-80 invert contrast-200' : ''

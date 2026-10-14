@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, BellRing, CheckCircle2, DollarSign, Smartphone, Mail, ArrowRight, ShieldCheck, TrendingDown } from 'lucide-react';
 import { useLanguageStore } from '../store/useLanguageStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
+import { getSafeImage } from '../utils/image';
 
 interface PriceDropAlertModalProps {
   isOpen: boolean;
@@ -95,7 +96,7 @@ export const PriceDropAlertModal: React.FC<PriceDropAlertModalProps> = ({
             {/* Product Summary */}
             <div className="flex items-center space-x-3 p-3 rounded-2xl bg-slate-950/80 border border-slate-800">
               <img
-                src={productImage}
+                src={getSafeImage(productImage)}
                 alt={productName}
                 className="w-12 h-12 object-cover rounded-xl border border-slate-700"
               />

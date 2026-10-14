@@ -11,6 +11,7 @@ import {
   ArrowDownRight,
 } from 'lucide-react';
 import { useLanguageStore } from '../store/useLanguageStore';
+import { getSafeImage } from '../utils/image';
 
 interface AIPriceTrackerModalProps {
   isOpen: boolean;
@@ -86,7 +87,7 @@ export const AIPriceTrackerModal: React.FC<AIPriceTrackerModalProps> = ({
         {/* Product Snapshot */}
         <div className="flex items-center gap-3 p-3 bg-slate-950/80 rounded-2xl border border-slate-800/80">
           <img
-            src={productImage}
+            src={getSafeImage(productImage)}
             alt={productTitle}
             className="w-12 h-12 rounded-xl object-cover bg-slate-800 border border-slate-700/60 flex-shrink-0"
           />

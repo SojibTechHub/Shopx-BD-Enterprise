@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, RotateCw, ZoomIn, ZoomOut, Sparkles, Layers, ShieldCheck } from 'lucide-react';
 import { useLanguageStore } from '../store/useLanguageStore';
+import { getSafeImage } from '../utils/image';
 
 interface Product360ViewModalProps {
   isOpen: boolean;
@@ -66,7 +67,7 @@ export const Product360ViewModal: React.FC<Product360ViewModalProps> = ({
             }}
           >
             <img
-              src={displayImages[0]}
+              src={getSafeImage(displayImages[0])}
               alt={productTitle}
               className="max-h-64 object-contain filter drop-shadow-[0_20px_30px_rgba(0,0,0,0.8)] pointer-events-none"
             />

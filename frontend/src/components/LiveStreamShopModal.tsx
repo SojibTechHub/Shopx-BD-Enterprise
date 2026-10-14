@@ -3,6 +3,7 @@ import { X, Heart, MessageCircle, Send, ShoppingBag, Zap, Eye, Volume2, VolumeX,
 import { useLanguageStore } from '../store/useLanguageStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
 import { useCartStore } from '../store/useCartStore';
+import { getSafeImage } from '../utils/image';
 
 interface LiveStreamShopModalProps {
   isOpen: boolean;
@@ -135,7 +136,7 @@ export const LiveStreamShopModal: React.FC<LiveStreamShopModalProps> = ({
           <div className="bg-slate-900/95 backdrop-blur-md border border-orange-500/40 rounded-2xl p-3 flex items-center justify-between shadow-2xl">
             <div className="flex items-center space-x-3 min-w-0 flex-1">
               <img
-                src={pinnedProduct.thumbnail}
+                src={getSafeImage(pinnedProduct.thumbnail)}
                 alt={pinnedProduct.title}
                 className="w-14 h-14 rounded-xl object-cover border border-slate-700 shrink-0"
               />

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Sparkles, Camera, Upload, CheckCircle2, ShieldAlert, ArrowRight, DollarSign, Tag } from 'lucide-react';
 import { useLanguageStore } from '../store/useLanguageStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
+import { getSafeImage } from '../utils/image';
 
 interface AIPriceMatcherModalProps {
   isOpen: boolean;
@@ -113,7 +114,7 @@ export const AIPriceMatcherModal: React.FC<AIPriceMatcherModalProps> = ({
           <div className="space-y-4 animate-scaleUp">
             <div className="bg-slate-950/90 border border-emerald-500/40 rounded-2xl p-4 flex items-center space-x-3.5">
               <img
-                src={matchResult.thumbnail}
+                src={getSafeImage(matchResult.thumbnail)}
                 alt={matchResult.productName}
                 className="w-16 h-16 rounded-xl object-cover border border-slate-800 shrink-0"
               />

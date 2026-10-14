@@ -15,6 +15,7 @@ import {
 import { useLanguageStore } from '../store/useLanguageStore';
 import { useCartStore } from '../store/useCartStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
+import { getSafeImage } from '../utils/image';
 
 export const HeroSlider: React.FC = () => {
   const { lang } = useLanguageStore();
@@ -214,7 +215,7 @@ export const HeroSlider: React.FC = () => {
             <div className="md:col-span-5 relative flex justify-center items-center">
               <div className="relative group">
                 <img
-                  src={activeSlide.image}
+                  src={getSafeImage(activeSlide.image)}
                   alt={activeSlide.title}
                   className="w-64 sm:w-72 h-64 sm:h-72 object-cover rounded-3xl shadow-xl transform group-hover:scale-105 transition-transform duration-500"
                 />
@@ -291,7 +292,7 @@ export const HeroSlider: React.FC = () => {
                 >
                   <div className="relative">
                     <img
-                      src={item.image}
+                      src={getSafeImage(item.image)}
                       alt={item.title}
                       className="w-full h-24 object-cover rounded-xl bg-white mb-2 group-hover:scale-105 transition-transform duration-300"
                     />
