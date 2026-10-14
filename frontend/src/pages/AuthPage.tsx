@@ -539,10 +539,10 @@ export const AuthPage: React.FC = () => {
       if (res.data.success) {
         localStorage.setItem('shopx_token', res.data.token);
         useAuthStore.setState({ user: res.data.user, token: res.data.token });
-        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-        const adminUrl = window.location.hostname === 'localhost'
-          ? 'http://localhost:5174'
-          : 'https://shopx-bd-enterprise-qoj6.vercel.app';
+        const isLocal = typeof window !== 'undefined' &&
+          (['localhost', '127.0.0.1', '::1'].includes(window.location.hostname) ||
+           window.location.hostname.startsWith('192.168.'));
+        const adminUrl = isLocal ? 'http://localhost:5174' : (import.meta.env.VITE_ADMIN_URL || 'http://localhost:5174');
         window.location.href = adminUrl;
       }
     } catch (err: any) {
@@ -596,9 +596,10 @@ export const AuthPage: React.FC = () => {
         localStorage.setItem('shopx_admin_token', res.data.token);
         localStorage.setItem('shopx_admin_user', JSON.stringify(res.data.user));
         confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
-        const adminUrl = window.location.hostname === 'localhost'
-          ? 'http://localhost:5174'
-          : 'https://shopx-bd-enterprise-qoj6.vercel.app';
+        const isLocal = typeof window !== 'undefined' &&
+          (['localhost', '127.0.0.1', '::1'].includes(window.location.hostname) ||
+           window.location.hostname.startsWith('192.168.'));
+        const adminUrl = isLocal ? 'http://localhost:5174' : (import.meta.env.VITE_ADMIN_URL || 'http://localhost:5174');
         window.location.href = adminUrl;
       }
     } catch (err: any) {

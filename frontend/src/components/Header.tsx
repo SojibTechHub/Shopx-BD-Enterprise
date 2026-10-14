@@ -504,7 +504,14 @@ export const Header: React.FC<HeaderProps> = ({
                   </Link>
                   {user.role === 'admin' && (
                     <a
-                      href="https://shopx-bd-enterprise-qoj6.vercel.app"
+                      href={
+                        typeof window !== 'undefined' &&
+                        (window.location.hostname === 'localhost' ||
+                          window.location.hostname === '127.0.0.1' ||
+                          window.location.hostname.startsWith('192.168.'))
+                          ? 'http://localhost:5174'
+                          : (import.meta.env.VITE_ADMIN_URL || 'http://localhost:5174')
+                      }
                       target="_blank"
                       rel="noreferrer"
                       className="block px-4 py-2 text-xs font-bold text-emerald-700 hover:bg-emerald-50"
@@ -514,7 +521,14 @@ export const Header: React.FC<HeaderProps> = ({
                   )}
                   {user.role === 'vendor' && (
                     <a
-                      href="https://shopx-bd-enterprise-qoj6.vercel.app"
+                      href={
+                        typeof window !== 'undefined' &&
+                        (window.location.hostname === 'localhost' ||
+                          window.location.hostname === '127.0.0.1' ||
+                          window.location.hostname.startsWith('192.168.'))
+                          ? 'http://localhost:5174'
+                          : (import.meta.env.VITE_ADMIN_URL || 'http://localhost:5174')
+                      }
                       target="_blank"
                       rel="noreferrer"
                       className="block px-4 py-2 text-xs font-bold text-amber-700 hover:bg-amber-50"

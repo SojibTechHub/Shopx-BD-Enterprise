@@ -193,9 +193,10 @@ export const createOrder = async (req: AuthRequest, res: Response): Promise<void
 
     // Send Real Confirmation SMS to customer's mobile
     if (customerInfo.phone) {
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
       sendSMS({
         to: customerInfo.phone,
-        message: `ShopX BD: আপনার #${order.orderId} অর্ডার সফলভাবে গ্রহণ করা হয়েছে। মোট মূল্য: ৳${order.totalAmount}। লাইভ ট্র্যাক করুন: https://shopx-bd-enterprise-jpqg.vercel.app/track-order?orderId=${order.orderId}`,
+        message: `ShopX BD: আপনার #${order.orderId} অর্ডার সফলভাবে গ্রহণ করা হয়েছে। মোট মূল্য: ৳${order.totalAmount}। লাইভ ট্র্যাক করুন: ${frontendUrl}/track-order?orderId=${order.orderId}`,
       }).catch((e) => console.warn('Order confirmation SMS failed:', e.message));
     }
 
@@ -319,7 +320,8 @@ export const updateOrderStatus = async (req: AuthRequest, res: Response): Promis
     };
 
     const statusBengali = statusMap[order.orderStatus] || order.orderStatus;
-    const trackingUrl = `https://shopx-bd-enterprise-jpqg.vercel.app/track-order?orderId=${order.orderId}`;
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const trackingUrl = `${frontendUrl}/track-order?orderId=${order.orderId}`;
 
     const updateHtml = `
       <div style="font-family: Arial, sans-serif; background-color: #0b1322; color: #ffffff; padding: 25px; border-radius: 20px; border: 1px solid #1e293b;">
@@ -362,12 +364,12 @@ export const updateOrderStatus = async (req: AuthRequest, res: Response): Promis
     // Trigger Real SMS to customer's mobile number
     if (order.customerInfo?.phone) {
       const smsText = status === 'confirmed'
-        ? `ShopX BD: আপনার #${order.orderId} অর্ডারটি নিশ্চিত (Confirmed) করা হয়েছে। পণ্য প্রস্তুত করা হচ্ছে। ডেলিভারি ট্র্যাক করুন: https://shopx-bd-enterprise-jpqg.vercel.app/track-order?orderId=${order.orderId}`
+        ? `ShopX BD: আপনার #${order.orderId} অর্ডারটি নিশ্চিত (Confirmed) করা হয়েছে। পণ্য প্রস্তুত করা হচ্ছে। ডেলিভারি ট্র্যাক করুন: ${frontendUrl}/track-order?orderId=${order.orderId}`
         : (status === 'out_for_delivery'
           ? `ShopX BD: আপনার #${order.orderId} অর্ডারের ডেলিভারি শুরু হয়েছে। ডেলিভারি রাইডার আপনার ঠিকানায় রওয়ানা দিয়েছেন। হেল্পলাইন: 01942791004`
           : (status === 'delivered'
             ? `ShopX BD: আপনার #${order.orderId} পার্সেল সফলভাবে ডেলিভারি সম্পন্ন হয়েছে। ShopX-এর সাথে থাকার জন্য ধন্যবাদ!`
-            : `ShopX BD: অর্ডার #${order.orderId}-এর স্ট্যাটাস আপডেট: ${statusBengali}। বিস্তারিত: https://shopx-bd-enterprise-jpqg.vercel.app/track-order?orderId=${order.orderId}`));
+            : `ShopX BD: অর্ডার #${order.orderId}-এর স্ট্যাটাস আপডেট: ${statusBengali}। বিস্তারিত: ${frontendUrl}/track-order?orderId=${order.orderId}`));
 
       sendSMS({
         to: order.customerInfo.phone,
