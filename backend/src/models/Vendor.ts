@@ -37,11 +37,11 @@ const VendorSchema = new Schema<IVendor>(
     description: { type: String },
     logo: {
       type: String,
-      default: 'https://res.cloudinary.com/wb19kgrx/image/upload/v1/shopx/stores/default-store.png',
+      default: 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=300&auto=format&fit=crop&q=80',
     },
     banner: {
       type: String,
-      default: 'https://res.cloudinary.com/wb19kgrx/image/upload/v1/shopx/stores/default-banner.jpg',
+      default: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&auto=format&fit=crop&q=80',
     },
     phone: { type: String, required: true },
     address: { type: String, required: true },

@@ -26,7 +26,7 @@ const FlashSaleSchema = new Schema<IFlashSale>(
     banglaTitle: { type: String },
     bannerImage: {
       type: String,
-      default: 'https://res.cloudinary.com/wb19kgrx/image/upload/v1/shopx/banners/flash-sale-banner.jpg',
+      default: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1200&auto=format&fit=crop&q=80',
     },
     startTime: { type: Date, required: true },
     endTime: { type: Date, required: true },

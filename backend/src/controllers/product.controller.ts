@@ -273,7 +273,7 @@ export const createProduct = async (req: AuthRequest, res: Response): Promise<vo
       stock: Number(stock) || 10,
       sku,
       images: images && images.length > 0 ? images : [thumbnail],
-      thumbnail: thumbnail || (images && images[0]) || 'https://res.cloudinary.com/wb19kgrx/image/upload/v1/shopx/products/placeholder.jpg',
+      thumbnail: thumbnail || (images && images[0]) || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=70',
       variants: variants || [],
       attributes: attributes || [],
       tags: tags || [],

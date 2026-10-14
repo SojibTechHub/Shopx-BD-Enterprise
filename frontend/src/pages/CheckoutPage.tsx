@@ -257,6 +257,16 @@ export const CheckoutPage: React.FC = () => {
     setGeoLocation({ lat: dist.lat, lng: dist.lng });
   };
 
+  useEffect(() => {
+    if (user) {
+      if (!name) setName(user.name || '');
+      if (!phone) setPhone(user.phone || '');
+      if (!email) setEmail(user.email || '');
+      const defaultAddr = user.addresses?.find((a: any) => a.isDefault)?.street;
+      if (defaultAddr && !address) setAddress(defaultAddr);
+    }
+  }, [user]);
+
   if (items.length === 0) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-20 text-center">
@@ -287,16 +297,6 @@ export const CheckoutPage: React.FC = () => {
   const coinsToUse = Math.min(userCoins, 250);
   const coinsDiscount = useCoins && userCoins >= 10 ? Math.min(25, Math.floor(coinsToUse / 10)) : 0;
   const payableTotal = Math.max(0, baseTotal - coinsDiscount);
-
-  useEffect(() => {
-    if (user) {
-      if (!name) setName(user.name || '');
-      if (!phone) setPhone(user.phone || '');
-      if (!email) setEmail(user.email || '');
-      const defaultAddr = user.addresses?.find((a: any) => a.isDefault)?.street;
-      if (defaultAddr && !address) setAddress(defaultAddr);
-    }
-  }, [user]);
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
