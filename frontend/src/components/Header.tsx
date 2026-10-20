@@ -207,12 +207,12 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="sticky top-0 z-50 w-full bg-white border-b border-slate-200 shadow-md transition-all">
       {/* 1. Top Bar: Deliver Location, Hotline, Portals, Currency, Language */}
-      <div className="bg-slate-900 text-slate-300 text-xs sm:text-sm py-2 px-4 sm:px-6 border-b border-slate-800">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2 sm:gap-4">
-          <div className="flex items-center gap-3 sm:gap-4">
-            <span className="flex items-center gap-1.5 text-emerald-400 font-bold text-xs sm:text-sm">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>{lang === 'bn' ? '১০০% অরিজিনাল ব্র্যান্ড ও ক্যাশ অন ডেলিভারি' : '100% Authentic Brands, Official Warranty & COD'}</span>
+      <div className="bg-slate-900 text-slate-300 text-xs sm:text-sm py-1.5 sm:py-2 px-3 sm:px-6 border-b border-slate-800">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+            <span className="flex items-center gap-1.5 text-emerald-400 font-bold text-xs sm:text-sm truncate">
+              <ShieldCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+              <span className="truncate">{lang === 'bn' ? '১০০% অরিজিনাল ব্র্যান্ড ও ক্যাশ অন ডেলিভারি' : '100% Authentic Brands & COD'}</span>
             </span>
             <span className="hidden sm:inline-block text-slate-700">|</span>
             <a
@@ -224,17 +224,17 @@ export const Header: React.FC<HeaderProps> = ({
             </a>
           </div>
 
-          <div className="flex items-center gap-2.5 sm:gap-4 text-xs sm:text-sm font-semibold">
+          <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm font-semibold flex-shrink-0">
             {/* 4 Role Portals Navigation Links */}
             <Link
               to="/vendor-register"
-              className="text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1 transition"
+              className="hidden sm:flex text-amber-400 hover:text-amber-300 font-bold items-center gap-1 transition"
             >
               <Store className="w-3.5 h-3.5" />
               <span>{lang === 'bn' ? 'সেলার হাব' : 'Seller Hub'}</span>
             </Link>
 
-            <span className="text-slate-700">|</span>
+            <span className="hidden sm:inline text-slate-700">|</span>
 
             <Link
               to="/rider-portal"
@@ -641,8 +641,8 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
 
-      {/* 3. Bottom Navigation Bar matching reference image */}
-      <div className="border-t border-slate-100 bg-white px-4">
+      {/* 3. Bottom Navigation Bar matching reference image (Desktop Only) */}
+      <div className="hidden md:block border-t border-slate-100 bg-white px-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Left: Green "All Categories" Dropdown */}
           <div ref={categoriesRef} className="relative">

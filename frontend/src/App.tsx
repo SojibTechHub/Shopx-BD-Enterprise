@@ -381,6 +381,9 @@ export const App: React.FC = () => {
 
         {/* Footer */}
         <Footer />
+
+        {/* Daraz-Style Mobile Persistent App Bottom Navigation */}
+        <MobileBottomNav />
       </div>
     </Router>
 
