@@ -291,7 +291,24 @@ export const updateOrderStatus = async (req: AuthRequest, res: Response): Promis
     }
 
     if (paymentStatus) {
+      const prevPaymentStatus = order.paymentStatus;
       order.paymentStatus = paymentStatus;
+      if (paymentStatus === 'paid' && prevPaymentStatus !== 'paid') {
+        order.trackingHistory.push({
+          status: 'paid',
+          message: 'পেমেন্ট সফলভাবে ভেরিফাই ও গ্রহণ করা হয়েছে। (Payment Verified & Received)',
+          location: 'ShopX Finance Hub',
+          timestamp: new Date(),
+        });
+
+        // Send payment confirmation SMS
+        if (order.customerInfo?.phone) {
+          sendSMS({
+            to: order.customerInfo.phone,
+            message: `ShopX BD: আপনার #${order.orderId} অর্ডারের পেমেন্ট (৳${order.totalAmount}) সফলভাবে অনুমোদিত হয়েছে। ধন্যবাদ!`,
+          }).catch((e) => console.warn('Failed to send payment SMS:', e.message));
+        }
+      }
     }
 
     if (riderId) {

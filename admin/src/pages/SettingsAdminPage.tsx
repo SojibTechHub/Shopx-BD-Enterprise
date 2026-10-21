@@ -57,10 +57,20 @@ export const SettingsAdminPage: React.FC = () => {
     fetchSettings();
   }, []);
 
-  const handleSaveSettings = (e: React.FormEvent) => {
+  const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSuccessMsg(isBn ? 'সিস্টেম কনফিগারেশন সফলভাবে আপডেট হয়েছে!' : 'System configuration saved successfully!');
-    setTimeout(() => setSuccessMsg(''), 4000);
+    try {
+      setIsLoading(true);
+      const res = await api.put('/admin/settings', settings);
+      if (res.data.success) {
+        setSuccessMsg(isBn ? 'সিস্টেম কনফিগারেশন সফলভাবে ডাটাবেজে সংরক্ষিত হয়েছে!' : 'System configuration saved successfully to database!');
+        setTimeout(() => setSuccessMsg(''), 4000);
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.message || (isBn ? 'সেটিংস সংরক্ষণে ত্রুটি হয়েছে।' : 'Failed to save settings.'));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -113,7 +123,7 @@ export const SettingsAdminPage: React.FC = () => {
                 <input
                   type="text"
                   required
-                  value={settings.headOffice}
+                  value={settings.headOffice || ''}
                   onChange={(e) => setSettings({ ...settings, headOffice: e.target.value })}
                   className="w-full py-2.5 px-3 rounded-xl border border-slate-700 bg-slate-800 text-white outline-none focus:border-emerald-500 font-semibold"
                 />
@@ -126,7 +136,7 @@ export const SettingsAdminPage: React.FC = () => {
                 <input
                   type="text"
                   required
-                  value={settings.banglaHeadOffice}
+                  value={settings.banglaHeadOffice || ''}
                   onChange={(e) => setSettings({ ...settings, banglaHeadOffice: e.target.value })}
                   className="w-full py-2.5 px-3 rounded-xl border border-slate-700 bg-slate-800 text-white outline-none focus:border-emerald-500 font-semibold"
                 />
@@ -140,7 +150,7 @@ export const SettingsAdminPage: React.FC = () => {
                   <input
                     type="text"
                     required
-                    value={settings.helplinePhone}
+                    value={settings.helplinePhone || ''}
                     onChange={(e) => setSettings({ ...settings, helplinePhone: e.target.value })}
                     className="w-full py-2.5 px-3 rounded-xl border border-slate-700 bg-slate-800 text-white outline-none focus:border-emerald-500 font-mono"
                   />
@@ -153,10 +163,41 @@ export const SettingsAdminPage: React.FC = () => {
                   <input
                     type="email"
                     required
-                    value={settings.helplineEmail}
+                    value={settings.helplineEmail || ''}
                     onChange={(e) => setSettings({ ...settings, helplineEmail: e.target.value })}
                     className="w-full py-2.5 px-3 rounded-xl border border-slate-700 bg-slate-800 text-white outline-none focus:border-emerald-500 font-mono"
                   />
+                </div>
+              </div>
+
+              {/* Merchant Payment Numbers Section */}
+              <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+                <h3 className="font-black text-amber-400 text-xs uppercase tracking-wider">
+                  💳 {isBn ? 'মার্চেন্ট পেমেন্ট নম্বর (কাস্টমার সেন্ড মানি)' : 'Merchant Direct MFS Numbers'}
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-bold text-slate-300 mb-1 text-[11px]">
+                      {isBn ? 'বিকাশ নম্বর (bKash Personal)' : 'bKash Merchant/Personal'}
+                    </label>
+                    <input
+                      type="text"
+                      value={settings.merchantBkashNumber || '01942791004'}
+                      onChange={(e) => setSettings({ ...settings, merchantBkashNumber: e.target.value })}
+                      className="w-full py-2 px-3 rounded-xl border border-slate-700 bg-slate-900 text-pink-400 font-mono font-bold outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold text-slate-300 mb-1 text-[11px]">
+                      {isBn ? 'নগদ নম্বর (Nagad Personal)' : 'Nagad Merchant/Personal'}
+                    </label>
+                    <input
+                      type="text"
+                      value={settings.merchantNagadNumber || '01942791004'}
+                      onChange={(e) => setSettings({ ...settings, merchantNagadNumber: e.target.value })}
+                      className="w-full py-2 px-3 rounded-xl border border-slate-700 bg-slate-900 text-amber-400 font-mono font-bold outline-none"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -167,7 +208,7 @@ export const SettingsAdminPage: React.FC = () => {
                   </label>
                   <input
                     type="number"
-                    value={settings.defaultCommissionRate}
+                    value={settings.defaultCommissionRate || 5}
                     onChange={(e) => setSettings({ ...settings, defaultCommissionRate: Number(e.target.value) })}
                     className="w-full py-2.5 px-3 rounded-xl border border-slate-700 bg-slate-800 text-white outline-none font-mono"
                   />
@@ -179,7 +220,7 @@ export const SettingsAdminPage: React.FC = () => {
                   </label>
                   <input
                     type="number"
-                    value={settings.maxCoinDiscountBDT}
+                    value={settings.maxCoinDiscountBDT || 25}
                     onChange={(e) => setSettings({ ...settings, maxCoinDiscountBDT: Number(e.target.value) })}
                     className="w-full py-2.5 px-3 rounded-xl border border-slate-700 bg-slate-800 text-white outline-none font-mono"
                   />
@@ -188,10 +229,11 @@ export const SettingsAdminPage: React.FC = () => {
 
               <button
                 type="submit"
+                disabled={isLoading}
                 className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold rounded-2xl shadow-xl shadow-emerald-600/20 transition flex items-center justify-center gap-2 text-xs"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                <span>{isBn ? 'কনফিগারেশন সংরক্ষণ করুন' : 'Save System Settings'}</span>
+                <span>{isLoading ? (isBn ? 'সংরক্ষণ করা হচ্ছে...' : 'Saving...') : (isBn ? 'কনফিগারেশন সংরক্ষণ করুন' : 'Save System Settings')}</span>
               </button>
             </div>
           </form>

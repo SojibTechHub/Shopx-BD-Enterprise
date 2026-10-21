@@ -957,10 +957,14 @@ export const ProfilePage: React.FC = () => {
                       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-700 pb-3">
                         <div>
                           <span className="font-mono font-black text-xs text-slate-900 dark:text-white">
-                            #{order._id}
+                            #{order.orderId || order._id}
                           </span>
                           <p className="text-[11px] text-slate-400">
-                            {new Date(order.createdAt).toLocaleDateString()} • {order.paymentMethod}
+                            {new Date(order.createdAt).toLocaleDateString()} • <span className="uppercase font-semibold">{order.paymentMethod || 'COD'}</span> •{' '}
+                            <span className={order.paymentStatus === 'paid' ? 'text-emerald-600 font-bold' : 'text-amber-600 font-bold'}>
+                              {order.paymentStatus === 'paid' ? (isBn ? 'পরিশোধিত (Paid)' : 'Paid') : (isBn ? 'পেমেন্ট অপেক্ষমাণ (Pending)' : 'Pending')}
+                            </span>
+                            {order.transactionId ? ` • TrxID: ${order.transactionId}` : ''}
                           </p>
                         </div>
 

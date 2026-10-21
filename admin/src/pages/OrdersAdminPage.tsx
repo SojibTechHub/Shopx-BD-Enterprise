@@ -22,6 +22,7 @@ import {
   RefreshCw,
   Box,
   ChevronRight,
+  CreditCard,
 } from 'lucide-react';
 import { api } from '../services/api';
 import { useAdminAuthStore } from '../store/useAdminAuthStore';
@@ -81,6 +82,26 @@ export const OrdersAdminPage: React.FC = () => {
       }
     } catch (err) {
       alert(lang === 'en' ? 'Status update failed.' : 'স্ট্যাটাস আপডেট ব্যর্থ হয়েছে।');
+    }
+  };
+
+  const handleUpdatePaymentStatus = async (orderId: string, paymentStatus: string) => {
+    try {
+      await api.put(`/orders/${orderId}/status`, {
+        paymentStatus,
+        message: paymentStatus === 'paid' ? 'পেমেন্ট সফলভাবে ভেরিফাই ও গ্রহণ করা হয়েছে।' : 'পেমেন্ট ভেরিফিকেশন ব্যর্থ হয়েছে।'
+      });
+      fetchOrders();
+      if (selectedOrder && selectedOrder._id === orderId) {
+        setSelectedOrder((prev: any) => ({ ...prev, paymentStatus }));
+      }
+      alert(
+        paymentStatus === 'paid'
+          ? (lang === 'en' ? 'Payment successfully marked as PAID!' : 'পেমেন্ট সফলভাবে অনুমোদিত ও পেইড মার্ক করা হয়েছে!')
+          : (lang === 'en' ? 'Payment status updated.' : 'পেমেন্ট স্ট্যাটাস আপডেট করা হয়েছে।')
+      );
+    } catch (err) {
+      alert(lang === 'en' ? 'Payment status update failed.' : 'পেমেন্ট আপডেট ব্যর্থ হয়েছে।');
     }
   };
 
@@ -444,6 +465,76 @@ export const OrdersAdminPage: React.FC = () => {
               </p>
             </div>
 
+            {/* Payment & TrxID Verification Card */}
+            <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3 text-xs">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CreditCard className="w-4 h-4 text-emerald-400" />
+                  <span className="font-bold text-white uppercase tracking-wider text-[11px]">
+                    {lang === 'en' ? 'Payment & Verification' : 'পেমেন্ট ও ভেরিফিকেশন'}
+                  </span>
+                </div>
+                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                  selectedOrder.paymentStatus === 'paid'
+                    ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
+                    : selectedOrder.paymentStatus === 'pending_verification'
+                    ? 'bg-amber-950 text-amber-300 border border-amber-800 animate-pulse'
+                    : 'bg-slate-800 text-slate-300'
+                }`}>
+                  {selectedOrder.paymentStatus === 'paid'
+                    ? (lang === 'en' ? 'PAID' : 'পরিশোধিত')
+                    : selectedOrder.paymentStatus === 'pending_verification'
+                    ? (lang === 'en' ? 'VERIFICATION PENDING' : 'ভেরিফিকেশন অপেক্ষমাণ')
+                    : (selectedOrder.paymentStatus || 'PENDING')}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-slate-300">
+                <div>
+                  <span className="text-slate-500 block text-[10px]">{lang === 'en' ? 'Method:' : 'পদ্ধতি:'}</span>
+                  <strong className="text-white uppercase font-mono">{selectedOrder.paymentMethod || 'COD'}</strong>
+                </div>
+                <div>
+                  <span className="text-slate-500 block text-[10px]">{lang === 'en' ? 'Total Amount:' : 'মোট মূল্য:'}</span>
+                  <strong className="text-emerald-400 font-mono text-sm">৳{selectedOrder.totalAmount}</strong>
+                </div>
+                {selectedOrder.senderNumber && (
+                  <div>
+                    <span className="text-slate-500 block text-[10px]">{lang === 'en' ? 'Sender Number:' : 'প্রেরকের নম্বর:'}</span>
+                    <strong className="text-white font-mono">{selectedOrder.senderNumber}</strong>
+                  </div>
+                )}
+                {selectedOrder.transactionId && (
+                  <div>
+                    <span className="text-slate-500 block text-[10px]">{lang === 'en' ? 'Transaction ID (TrxID):' : 'ট্রানজেকশন আইডি (TrxID):'}</span>
+                    <strong className="text-amber-400 font-mono font-black">{selectedOrder.transactionId}</strong>
+                  </div>
+                )}
+              </div>
+
+              {/* Quick Action to Verify & Approve Payment */}
+              {selectedOrder.paymentStatus !== 'paid' && (
+                <div className="pt-2 border-t border-slate-800/80 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleUpdatePaymentStatus(selectedOrder._id, 'paid')}
+                    className="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-black shadow flex items-center justify-center gap-1.5 transition"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>{lang === 'en' ? '✓ Verify & Mark Paid' : '✓ পেমেন্ট ভেরিফাই ও গ্রহণ করুন'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleUpdatePaymentStatus(selectedOrder._id, 'failed')}
+                    className="py-2 px-3 bg-red-950/80 hover:bg-red-900 border border-red-800 text-red-300 rounded-xl text-xs font-bold transition"
+                    title="Mark as invalid / unpaid"
+                  >
+                    {lang === 'en' ? 'Invalid TrxID' : 'ভুয়া TrxID'}
+                  </button>
+                </div>
+              )}
+            </div>
+
             {/* Items List */}
             <div className="space-y-2">
               <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
@@ -570,6 +661,10 @@ export const OrdersAdminPage: React.FC = () => {
                   <p><strong>Phone:</strong> {selectedOrder.customerInfo?.phone}</p>
                   <p><strong>District:</strong> {selectedOrder.customerInfo?.district || 'Dhaka'}</p>
                   <p><strong>Address:</strong> {selectedOrder.customerInfo?.address}</p>
+                  <p><strong>Payment:</strong> <span className="uppercase font-bold">{selectedOrder.paymentMethod || 'COD'}</span> ({selectedOrder.paymentStatus === 'paid' ? 'PAID' : 'DUE / PENDING'})</p>
+                  {selectedOrder.transactionId && (
+                    <p><strong>TrxID:</strong> <span className="font-bold">{selectedOrder.transactionId}</span> {selectedOrder.senderNumber ? `(from ${selectedOrder.senderNumber})` : ''}</p>
+                  )}
                 </div>
 
                 <div className="space-y-1.5 border-b border-dashed border-slate-300 pb-2.5">
@@ -633,7 +728,10 @@ export const OrdersAdminPage: React.FC = () => {
                     <p className="font-bold text-slate-900">SHIPPING & LOGISTICS:</p>
                     <p>Partner: Steadfast / Pathao Express</p>
                     <p>Consignment: CN-{selectedOrder.orderId?.replace(/\D/g, '') || '948271'}</p>
-                    <p>Payment: {selectedOrder.paymentMethod} ({selectedOrder.paymentStatus})</p>
+                    <p>Payment: <span className="uppercase font-bold">{selectedOrder.paymentMethod || 'COD'}</span> ({selectedOrder.paymentStatus === 'paid' ? 'PAID' : 'DUE / PENDING'})</p>
+                    {selectedOrder.transactionId && (
+                      <p>TrxID: <span className="font-bold">{selectedOrder.transactionId}</span> {selectedOrder.senderNumber ? `(Sender: ${selectedOrder.senderNumber})` : ''}</p>
+                    )}
                   </div>
                 </div>
 

@@ -8,6 +8,7 @@ import { Coupon } from '../models/Coupon.js';
 import { Category } from '../models/Category.js';
 import { Review } from '../models/Review.js';
 import { Banner } from '../models/Banner.js';
+import { Setting } from '../models/Setting.js';
 
 export const getAdminStats = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -277,22 +278,44 @@ export const deleteCouponAdmin = async (req: Request, res: Response): Promise<vo
 // ==========================================
 export const getSystemSettingsAdmin = async (req: Request, res: Response): Promise<void> => {
   try {
+    const saved = await Setting.findOne({ key: 'general_settings' });
+    const defaultSettings = {
+      platformName: 'ShopX BD Enterprise',
+      headOffice: 'Rowmari, Kurigram, Rangpur, Bangladesh',
+      banglaHeadOffice: 'রৌমারী, কুড়িগ্রাম, রংপুর বিভাগ, বাংলাদেশ',
+      helplineEmail: 'sojibahmedshorif25@gmail.com',
+      helplinePhone: '+880 1942-791004',
+      superAdminEmail: 'sojibahmedshorif25@gmail.com',
+      merchantBkashNumber: process.env.MERCHANT_BKASH_NUMBER || '01942791004',
+      merchantNagadNumber: '01942791004',
+      defaultCommissionRate: 5,
+      dailyCheckInMaxReward: 100,
+      maxCoinDiscountBDT: 25,
+      smsGatewayStatus: 'Operational',
+      emailSMTPStatus: 'Connected (Gmail Secure)',
+      databaseStatus: 'MongoDB Atlas Connected',
+    };
+
     res.status(200).json({
       success: true,
-      settings: {
-        platformName: 'ShopX BD Enterprise',
-        headOffice: 'Rowmari, Kurigram, Rangpur, Bangladesh',
-        banglaHeadOffice: 'রৌমারী, কুড়িগ্রাম, রংপুর বিভাগ, বাংলাদেশ',
-        helplineEmail: 'sojibahmedshorif25@gmail.com',
-        helplinePhone: '+880 1942-791004',
-        superAdminEmail: 'sojibahmedshorif25@gmail.com',
-        defaultCommissionRate: 5,
-        dailyCheckInMaxReward: 100,
-        maxCoinDiscountBDT: 25,
-        smsGatewayStatus: 'Operational',
-        emailSMTPStatus: 'Connected (Gmail Secure)',
-        databaseStatus: 'MongoDB Atlas Connected',
-      },
+      settings: saved ? { ...defaultSettings, ...saved.value } : defaultSettings,
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const updateSystemSettingsAdmin = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const updated = await Setting.findOneAndUpdate(
+      { key: 'general_settings' },
+      { key: 'general_settings', value: req.body },
+      { upsert: true, new: true }
+    );
+    res.status(200).json({
+      success: true,
+      message: 'Settings saved successfully',
+      settings: updated.value,
     });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });

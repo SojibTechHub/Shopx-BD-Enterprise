@@ -15,6 +15,7 @@ import {
   createCouponAdmin,
   deleteCouponAdmin,
   getSystemSettingsAdmin,
+  updateSystemSettingsAdmin,
   getAnalyticsAdmin,
   getAllReviewsAdmin,
   deleteReviewAdmin,
@@ -93,5 +94,6 @@ router.delete('/coupons/:id', authenticate, authorize('admin'), deleteCouponAdmi
 
 // Settings & System Health
 router.get('/settings', authenticate, authorize('admin'), getSystemSettingsAdmin);
+router.put('/settings', authenticate, authorize('admin'), updateSystemSettingsAdmin);
 
 export default router;
