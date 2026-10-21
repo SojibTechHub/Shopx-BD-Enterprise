@@ -1,11 +1,25 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const getApiBaseUrl = (): string => {
+  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    // Hosted on Vercel or cloud
+    if (host && host.includes('vercel.app')) {
+      return 'https://shopx-bd-enterprise.onrender.com/api';
+    }
+    // Accessed from mobile device on local WiFi/LAN (e.g. 192.168.x.x or 10.x.x.x)
+    if (host && host !== 'localhost' && host !== '127.0.0.1' && !host.includes('localhost')) {
+      return `http://${host}:5000/api`;
+    }
+  }
+  return 'http://localhost:5000/api';
+};
 
 export const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: getApiBaseUrl(),
   withCredentials: true,
-  timeout: 12000,
+  timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
   },

@@ -349,24 +349,56 @@ export const claimDailyCheckin = async (req: AuthRequest, res: Response): Promis
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, email, password, phone, role } = req.body;
+    const { name, email, password, phone, role, lang = 'en' } = req.body;
 
-    const existingUser = await User.findOne({ email: email.toLowerCase() });
-    if (existingUser) {
-      res.status(400).json({ success: false, message: 'Email is already registered.' });
+    if (!name || !name.trim()) {
+      res.status(400).json({
+        success: false,
+        message: lang === 'bn' ? 'দয়া করে আপনার পূর্ণ নাম প্রদান করুন।' : 'Please provide your full name.',
+      });
       return;
     }
 
-    const assignedRole = role === 'vendor' ? 'vendor' : 'customer';
+    if (!email || !email.includes('@')) {
+      res.status(400).json({
+        success: false,
+        message: lang === 'bn' ? 'সঠিক ইমেইল ঠিকানা প্রদান করুন।' : 'Please provide a valid email address.',
+      });
+      return;
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+
+    if (!password || password.length < 6) {
+      res.status(400).json({
+        success: false,
+        message: lang === 'bn' ? 'পাসওয়ার্ড ন্যূনতম ৬ অক্ষরের হতে হবে।' : 'Password must be at least 6 characters long.',
+      });
+      return;
+    }
+
+    const existingUser = await User.findOne({ email: cleanEmail });
+    if (existingUser) {
+      res.status(400).json({
+        success: false,
+        message: lang === 'bn'
+          ? 'এই ইমেইলটি দিয়ে ইতিমধ্যে একাউন্ট রয়েছে। অনুগ্রহ করে সাইন ইন করুন।'
+          : 'This email is already registered. Please log in instead.',
+      });
+      return;
+    }
+
+    const isSuperAdmin = cleanEmail === 'sojibahmedshorif25@gmail.com';
+    const assignedRole = isSuperAdmin ? 'admin' : (role === 'vendor' ? 'vendor' : 'customer');
 
     const user = await User.create({
-      name,
-      email: email.toLowerCase(),
+      name: name.trim(),
+      email: cleanEmail,
       password,
-      phone,
+      phone: phone?.trim(),
       role: assignedRole,
       isVerified: true,
-      loyaltyCoins: 50,
+      loyaltyCoins: isSuperAdmin ? 10000 : 50,
     });
 
     if (assignedRole === 'vendor') {

@@ -6,6 +6,7 @@ import { User } from '../models/User.js';
 import { Coupon } from '../models/Coupon.js';
 import { Rider } from '../models/Rider.js';
 import { AuthRequest } from '../middleware/auth.js';
+import { Setting } from '../models/Setting.js';
 import { sendEmail, generateOrderEmailTemplate } from '../config/mail.js';
 import { sendSMS } from '../config/sms.js';
 
@@ -129,6 +130,25 @@ export const createOrder = async (req: AuthRequest, res: Response): Promise<void
     const orderId = 'SX-' + Math.floor(100000 + Math.random() * 900000);
 
     const isDirectMobilePayment = ['bkash', 'nagad', 'rocket', 'upay'].includes(paymentMethod);
+    if (isDirectMobilePayment) {
+      const savedSettings = await Setting.findOne({ key: 'general_settings' });
+      const isAllowed = savedSettings?.value?.allowManualMfsPayment === true;
+      if (!isAllowed) {
+        res.status(400).json({
+          success: false,
+          message: 'ভুয়া অর্ডার ও প্রতারণা রোধে সরাসরি পার্সোনাল সেন্ড মানি বন্ধ রাখা হয়েছে। অনুগ্রহ করে ইনস্ট্যান্ট অনলাইন পেমেন্ট (SSLCommerz) অথবা ক্যাশ অন ডেলিভারি (COD) সিলেক্ট করুন।',
+        });
+        return;
+      }
+
+      if (!transactionId || transactionId.trim().length < 8) {
+        res.status(400).json({
+          success: false,
+          message: 'সঠিক ৮+ অক্ষরের ভ্যালিড ট্রানজেকশন আইডি (TrxID) আবশ্যক।',
+        });
+        return;
+      }
+    }
     const paymentStatus = isDirectMobilePayment ? 'pending_verification' : 'pending';
 
     const order = await Order.create({

@@ -13,6 +13,7 @@ dotenv.config();
 import { connectDB } from './config/db.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { setupSocketIO } from './socket/socketHandler.js';
+import { Setting } from './models/Setting.js';
 
 // Routes
 import authRoutes from './routes/auth.routes.js';
@@ -87,6 +88,38 @@ app.get('/api/health', (req, res) => {
     platform: 'ShopX BD Multi-Vendor E-Commerce & SaaS',
     timestamp: new Date().toISOString(),
   });
+});
+
+app.get('/api/settings/public', async (req, res) => {
+  try {
+    const saved = await Setting.findOne({ key: 'general_settings' });
+    const val = saved?.value || {};
+    res.status(200).json({
+      success: true,
+      settings: {
+        platformName: val.platformName || 'ShopX BD Enterprise',
+        headOffice: val.headOffice || 'Rowmari, Kurigram, Rangpur, Bangladesh',
+        banglaHeadOffice: val.banglaHeadOffice || 'রৌমারী, কুড়িগ্রাম, রংপুর বিভাগ, বাংলাদেশ',
+        helplinePhone: val.helplinePhone || '+880 1942-791004',
+        helplineEmail: val.helplineEmail || 'sojibahmedshorif25@gmail.com',
+        allowManualMfsPayment: val.allowManualMfsPayment === true, // Fraud Prevention: OFF by default
+        merchantBkashNumber: val.merchantBkashNumber || '01942791004',
+        merchantNagadNumber: val.merchantNagadNumber || '01942791004',
+        dailyCheckInMaxReward: val.dailyCheckInMaxReward || 100,
+        maxCoinDiscountBDT: val.maxCoinDiscountBDT || 25,
+      },
+    });
+  } catch (error: any) {
+    res.status(200).json({
+      success: true,
+      settings: {
+        allowManualMfsPayment: false,
+        helplinePhone: '+880 1942-791004',
+        merchantBkashNumber: '01942791004',
+        merchantNagadNumber: '01942791004',
+      },
+    });
+  }
 });
 
 app.get(['/.well-known/*', '/favicon.ico'], (req, res) => {

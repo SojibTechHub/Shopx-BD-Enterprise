@@ -23,6 +23,7 @@ import {
   Box,
   ChevronRight,
   CreditCard,
+  AlertTriangle,
 } from 'lucide-react';
 import { api } from '../services/api';
 import { useAdminAuthStore } from '../store/useAdminAuthStore';
@@ -41,9 +42,11 @@ export const OrdersAdminPage: React.FC = () => {
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
   const [invoiceFormat, setInvoiceFormat] = useState<'thermal' | 'a4'>('thermal');
   const [isLoading, setIsLoading] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   const fetchOrders = async () => {
     setIsLoading(true);
+    setFetchError(null);
     try {
       if (isAdmin) {
         const res = await api.get('/admin/orders');
@@ -52,8 +55,14 @@ export const OrdersAdminPage: React.FC = () => {
         const res = await api.get('/vendor/dashboard');
         if (res.data?.success) setOrders(res.data.data.recentOrders || []);
       }
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      console.warn('Orders fetch error:', err.message);
+      const isRefused = err.code === 'ERR_NETWORK' || err.message?.includes('Network Error');
+      setFetchError(
+        isRefused
+          ? (lang === 'bn' ? 'সার্ভারের সাথে সংযোগ স্থাপন করা সম্ভব হয়নি (Server Offline or Starting Up)। অনুগ্রহ করে ব্যাকএন্ড সচল আছে কিনা নিশ্চিত করুন।' : 'Unable to connect to backend server. Please verify backend is running.')
+          : (err.response?.data?.message || err.message || 'Failed to load orders.')
+      );
     } finally {
       setIsLoading(false);
     }
@@ -117,10 +126,11 @@ export const OrdersAdminPage: React.FC = () => {
         fetchOrders();
       }
     } catch (err: any) {
-      alert(
-        (err.response?.data?.message) ||
-        (lang === 'en' ? 'Courier booking failed.' : 'কুরিয়ার বুকিং ব্যর্থ হয়েছে।')
-      );
+      const isNet = err.code === 'ERR_NETWORK' || err.message?.includes('Network Error');
+      const msg = isNet
+        ? (lang === 'bn' ? 'সার্ভারে সংযোগ পাওয়া যায়নি (ERR_CONNECTION_REFUSED)। সার্ভার সচল আছে কিনা নিশ্চিত করুন।' : 'Unable to reach backend server. Please verify backend is running.')
+        : (err.response?.data?.message || err.message || (lang === 'en' ? 'Courier booking failed.' : 'কুরিয়ার বুকিং ব্যর্থ হয়েছে।'));
+      alert(msg);
     }
   };
 
@@ -196,6 +206,23 @@ export const OrdersAdminPage: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Connection / Fetch Error Alert */}
+      {fetchError && (
+        <div className="p-4 bg-rose-950/80 border border-rose-800 text-rose-300 text-xs rounded-3xl font-bold flex items-center justify-between gap-3 shadow-lg animate-in fade-in">
+          <div className="flex items-center gap-2.5">
+            <AlertTriangle className="w-4 h-4 text-rose-400 flex-shrink-0" />
+            <span className="leading-relaxed">{fetchError}</span>
+          </div>
+          <button
+            onClick={fetchOrders}
+            className="px-3.5 py-1.5 bg-rose-900 hover:bg-rose-800 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-rose-700 flex-shrink-0"
+          >
+            <RefreshCw className="w-3 h-3" />
+            <span>{lang === 'bn' ? 'পুনরায় চেষ্টা করুন' : 'Retry'}</span>
+          </button>
+        </div>
+      )}
 
       {/* Orders Container */}
       <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">

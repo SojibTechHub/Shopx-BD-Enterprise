@@ -170,7 +170,41 @@ export const SettingsAdminPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Merchant Payment Numbers Section */}
+              {/* Fraudulent Payment Protection & Manual MFS Toggle */}
+              <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <h3 className="font-black text-rose-400 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                      <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                      {isBn ? 'ভুয়া পেমেন্ট প্রতিরোধ ফিল্টার (Fake Payment Protection)' : 'Fraudulent Payment & Fake TrxID Guard'}
+                    </h3>
+                    <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                      {isBn
+                        ? 'ম্যানুয়াল বিকাশ/নগদ সেন্ড মানি বন্ধ রাখলে কেউ ভুয়া TrxID দিয়ে অর্ডার করতে পারবে না। শুধুমাত্র অটোমেটিক গেটওয়ে (SSLCommerz) এবং ক্যাশ অন ডেলিভারি (COD) চালু থাকবে।'
+                        : 'Disabling manual MFS transfers completely eliminates fake TrxID orders. Customers will only be able to use verified SSLCommerz automated gateway or Cash on Delivery.'}
+                    </p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                    <input
+                      type="checkbox"
+                      checked={settings.allowManualMfsPayment === true}
+                      onChange={(e) => setSettings({ ...settings, allowManualMfsPayment: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-12 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-600"></div>
+                  </label>
+                </div>
+                <div className="pt-1">
+                  <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-lg ${settings.allowManualMfsPayment ? 'bg-amber-950/80 text-amber-300 border border-amber-800/80' : 'bg-emerald-950/80 text-emerald-300 border border-emerald-800/80'}`}>
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    {settings.allowManualMfsPayment
+                      ? (isBn ? '⚠️ ম্যানুয়াল বিকাশ/নগদ সেন্ড মানি সক্রিয় (ভুয়া TrxID ঝুঁকি থাকতে পারে)' : '⚠️ Manual Send Money Enabled (TrxID verification required)')
+                      : (isBn ? '🛡️ ১০০% ভুয়া পেমেন্ট প্রতিরোধ সক্রিয় (অটো গেটওয়ে ও ক্যাশ অন ডেলিভারি চালু)' : '🛡️ 100% Anti-Fraud Active (SSLCommerz Gateway & COD only)')}
+                  </span>
+                </div>
+              </div>
+
+              {/* Merchant Payment Numbers Section (Configured for Send Money or Hotline) */}
               <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
                 <h3 className="font-black text-amber-400 text-xs uppercase tracking-wider">
                   💳 {isBn ? 'মার্চেন্ট পেমেন্ট নম্বর (কাস্টমার সেন্ড মানি)' : 'Merchant Direct MFS Numbers'}

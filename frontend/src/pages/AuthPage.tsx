@@ -513,7 +513,7 @@ export const AuthPage: React.FC = () => {
 
     try {
       if (isRegister) {
-        await register({ name, email, phone, password });
+        await register({ name, email, phone, password, lang: isBn ? 'bn' : 'en' });
       } else {
         await login({ email, password });
       }

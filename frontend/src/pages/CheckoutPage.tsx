@@ -207,10 +207,28 @@ export const CheckoutPage: React.FC = () => {
   });
   const [isLocating, setIsLocating] = useState(false);
 
-  const MERCHANT_NUMBER = '01942791004';
+  const [allowManualMfs, setAllowManualMfs] = useState(false);
+  const [merchantNumber, setMerchantNumber] = useState('01942791004');
+
+  useEffect(() => {
+    api.get('/settings/public')
+      .then((res) => {
+        if (res.data?.success && res.data?.settings) {
+          const allowed = res.data.settings.allowManualMfsPayment === true;
+          setAllowManualMfs(allowed);
+          if (!allowed && ['bkash', 'nagad', 'upay', 'rocket'].includes(paymentMethod)) {
+            setPaymentMethod('cod');
+          }
+          if (res.data.settings.merchantBkashNumber) {
+            setMerchantNumber(res.data.settings.merchantBkashNumber);
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const copyMerchantNumber = () => {
-    navigator.clipboard.writeText(MERCHANT_NUMBER);
+    navigator.clipboard.writeText(merchantNumber);
     setCopiedNumber(true);
     setTimeout(() => setCopiedNumber(false), 2500);
   };
@@ -669,96 +687,120 @@ export const CheckoutPage: React.FC = () => {
                 <Truck className="w-5 h-5 text-emerald-600" />
               </label>
 
-              {/* bKash Send Money */}
-              <label
-                className={`p-4 rounded-2xl border-2 cursor-pointer transition flex items-center justify-between ${
-                  paymentMethod === 'bkash'
-                    ? 'border-[#e2136e] bg-[#fdf2f7] shadow-sm'
-                    : 'border-slate-200 hover:border-slate-300 bg-white'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <input
-                    type="radio"
-                    name="payment"
-                    value="bkash"
-                    checked={paymentMethod === 'bkash'}
-                    onChange={() => setPaymentMethod('bkash')}
-                    className="w-4 h-4 text-[#e2136e]"
-                  />
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-900">
-                      {lang === 'bn' ? 'বিকাশ সেন্ড মানি' : 'bKash Send Money'}
-                    </h4>
-                    <p className="text-[11px] text-slate-500">
-                      {lang === 'bn' ? 'পার্সোনাল বিকাশ থেকে সরাসরি পেমেন্ট' : 'Direct MFS Personal Transfer'}
+              {/* Fraud-Proof Payment Security Badge when manual MFS is off */}
+              {!allowManualMfs && (
+                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <ShieldCheck className="w-4 h-4" />
+                  </div>
+                  <div className="text-[11px] text-emerald-900 leading-tight">
+                    <p className="font-bold">
+                      {lang === 'bn' ? '🔒 ১০০% ভেরিফাইড ও সুরক্ষিত পেমেন্ট গেটওয়ে' : '🔒 100% Verified & Fraud-Proof Escrow'}
+                    </p>
+                    <p className="text-emerald-700 mt-0.5">
+                      {lang === 'bn'
+                        ? 'ভুয়া TrxID ও প্রতারণামূলক অর্ডার প্রতিরোধে শুধুমাত্র অটোমেটিক গেটওয়ে (SSLCommerz) এবং হোম ডেলিভারি ক্যাশ অন ডেলিভারি (COD) প্রযোজ্য।'
+                        : 'To eliminate fake TrxID transactions, only automated verified payment gateways (SSLCommerz) and Cash on Delivery (COD) are active.'}
                     </p>
                   </div>
                 </div>
-                <span className="text-xs font-black text-[#e2136e]">bKash</span>
-              </label>
+              )}
 
-              {/* Nagad Payment */}
-              <label
-                className={`p-4 rounded-2xl border-2 cursor-pointer transition flex items-center justify-between ${
-                  paymentMethod === 'nagad'
-                    ? 'border-[#f7941d] bg-[#fef8f0] shadow-sm'
-                    : 'border-slate-200 hover:border-slate-300 bg-white'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <input
-                    type="radio"
-                    name="payment"
-                    value="nagad"
-                    checked={paymentMethod === 'nagad'}
-                    onChange={() => setPaymentMethod('nagad')}
-                    className="w-4 h-4 text-[#f7941d]"
-                  />
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-900">
-                      {lang === 'bn' ? 'নগদ সেন্ড মানি' : 'Nagad Send Money'}
-                    </h4>
-                    <p className="text-[11px] text-slate-500">
-                      {lang === 'bn' ? 'নগদ অ্যাপ বা ইউএসএসডি কোড' : 'Instant Nagad MFS transfer'}
-                    </p>
-                  </div>
-                </div>
-                <span className="text-xs font-black text-[#f7941d]">Nagad</span>
-              </label>
+              {/* bKash / Nagad / Rocket Manual Send Money (Disabled when allowManualMfs is false) */}
+              {allowManualMfs && (
+                <>
+                  {/* bKash Send Money */}
+                  <label
+                    className={`p-4 rounded-2xl border-2 cursor-pointer transition flex items-center justify-between ${
+                      paymentMethod === 'bkash'
+                        ? 'border-[#e2136e] bg-[#fdf2f7] shadow-sm'
+                        : 'border-slate-200 hover:border-slate-300 bg-white'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="radio"
+                        name="payment"
+                        value="bkash"
+                        checked={paymentMethod === 'bkash'}
+                        onChange={() => setPaymentMethod('bkash')}
+                        className="w-4 h-4 text-[#e2136e]"
+                      />
+                      <div>
+                        <h4 className="text-xs font-bold text-slate-900">
+                          {lang === 'bn' ? 'বিকাশ সেন্ড মানি' : 'bKash Send Money'}
+                        </h4>
+                        <p className="text-[11px] text-slate-500">
+                          {lang === 'bn' ? 'পার্সোনাল বিকাশ থেকে সরাসরি পেমেন্ট' : 'Direct MFS Personal Transfer'}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-xs font-black text-[#e2136e]">bKash</span>
+                  </label>
 
-              {/* Rocket / Cards */}
-              <label
-                className={`p-4 rounded-2xl border-2 cursor-pointer transition flex items-center justify-between ${
-                  paymentMethod === 'rocket'
-                    ? 'border-[#8c3494] bg-[#faf3fb] shadow-sm'
-                    : 'border-slate-200 hover:border-slate-300 bg-white'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <input
-                    type="radio"
-                    name="payment"
-                    value="rocket"
-                    checked={paymentMethod === 'rocket'}
-                    onChange={() => setPaymentMethod('rocket')}
-                    className="w-4 h-4 text-[#8c3494]"
-                  />
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-900">
-                      {lang === 'bn' ? 'রকেট / কার্ডস' : 'Rocket / DBBL'}
-                    </h4>
-                    <p className="text-[11px] text-slate-500">
-                      {lang === 'bn' ? 'ডাচ বাংলা রকেট একাউন্ট' : 'Dutch-Bangla Rocket Wallet'}
-                    </p>
-                  </div>
-                </div>
-                <span className="text-xs font-black text-[#8c3494]">Rocket</span>
-              </label>
+                  {/* Nagad Payment */}
+                  <label
+                    className={`p-4 rounded-2xl border-2 cursor-pointer transition flex items-center justify-between ${
+                      paymentMethod === 'nagad'
+                        ? 'border-[#f7941d] bg-[#fef8f0] shadow-sm'
+                        : 'border-slate-200 hover:border-slate-300 bg-white'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="radio"
+                        name="payment"
+                        value="nagad"
+                        checked={paymentMethod === 'nagad'}
+                        onChange={() => setPaymentMethod('nagad')}
+                        className="w-4 h-4 text-[#f7941d]"
+                      />
+                      <div>
+                        <h4 className="text-xs font-bold text-slate-900">
+                          {lang === 'bn' ? 'নগদ সেন্ড মানি' : 'Nagad Send Money'}
+                        </h4>
+                        <p className="text-[11px] text-slate-500">
+                          {lang === 'bn' ? 'নগদ অ্যাপ বা ইউএসএসডি কোড' : 'Instant Nagad MFS transfer'}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-xs font-black text-[#f7941d]">Nagad</span>
+                  </label>
+
+                  {/* Rocket / Cards */}
+                  <label
+                    className={`p-4 rounded-2xl border-2 cursor-pointer transition flex items-center justify-between ${
+                      paymentMethod === 'rocket'
+                        ? 'border-[#8c3494] bg-[#faf3fb] shadow-sm'
+                        : 'border-slate-200 hover:border-slate-300 bg-white'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="radio"
+                        name="payment"
+                        value="rocket"
+                        checked={paymentMethod === 'rocket'}
+                        onChange={() => setPaymentMethod('rocket')}
+                        className="w-4 h-4 text-[#8c3494]"
+                      />
+                      <div>
+                        <h4 className="text-xs font-bold text-slate-900">
+                          {lang === 'bn' ? 'রকেট / কার্ডস' : 'Rocket / DBBL'}
+                        </h4>
+                        <p className="text-[11px] text-slate-500">
+                          {lang === 'bn' ? 'ডাচ বাংলা রকেট একাউন্ট' : 'Dutch-Bangla Rocket Wallet'}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-xs font-black text-[#8c3494]">Rocket</span>
+                  </label>
+                </>
+              )}
             </div>
 
             {/* Mobile Banking Transfer Instructions */}
-            {['bkash', 'nagad', 'upay', 'rocket'].includes(paymentMethod) && (
+            {allowManualMfs && ['bkash', 'nagad', 'upay', 'rocket'].includes(paymentMethod) && (
               <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-amber-900">
@@ -775,7 +817,7 @@ export const CheckoutPage: React.FC = () => {
                 </div>
 
                 <div className="text-center bg-white p-2.5 rounded-xl border border-amber-200 font-mono font-black text-lg text-slate-900 tracking-wider">
-                  {MERCHANT_NUMBER}
+                  {merchantNumber}
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">

@@ -288,6 +288,7 @@ export const getSystemSettingsAdmin = async (req: Request, res: Response): Promi
       superAdminEmail: 'sojibahmedshorif25@gmail.com',
       merchantBkashNumber: process.env.MERCHANT_BKASH_NUMBER || '01942791004',
       merchantNagadNumber: '01942791004',
+      allowManualMfsPayment: false, // Fraud Prevention: OFF by default to block fake TrxID orders
       defaultCommissionRate: 5,
       dailyCheckInMaxReward: 100,
       maxCoinDiscountBDT: 25,
