@@ -33,10 +33,13 @@ import {
   Plus,
 } from 'lucide-react';
 
+import { useProductStore } from '../store/useProductStore';
+
 export const ProductsPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const cachedInitial = useProductStore.getState().products;
+  const [products, setProducts] = useState<Product[]>(() => cachedInitial);
+  const [isLoading, setIsLoading] = useState(cachedInitial.length === 0);
   const { lang } = useLanguageStore();
   const { formatPrice } = useCurrencyStore();
   const { addItem } = useCartStore();

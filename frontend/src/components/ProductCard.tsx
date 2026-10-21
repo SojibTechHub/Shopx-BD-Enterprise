@@ -130,6 +130,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           alt={title}
           className="w-full h-full object-cover object-center group-hover:scale-108 transition-transform duration-500"
           loading="lazy"
+          decoding="async"
         />
 
         {/* Quick View on Hover */}

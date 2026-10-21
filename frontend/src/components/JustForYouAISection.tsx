@@ -4,6 +4,7 @@ import { Product } from '../types';
 import { api } from '../services/api';
 import { useLanguageStore } from '../store/useLanguageStore';
 import { useRecentViewedStore } from '../store/useRecentViewedStore';
+import { useProductStore } from '../store/useProductStore';
 import { ProductCard } from './ProductCard';
 
 interface JustForYouAISectionProps {
@@ -17,8 +18,11 @@ export const JustForYouAISection: React.FC<JustForYouAISectionProps> = ({
 }) => {
   const { lang } = useLanguageStore();
   const { items: recentItems } = useRecentViewedStore();
-  const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { products } = useProductStore();
+  const [recommendedProducts, setRecommendedProducts] = useState<Product[]>(() => {
+    return products.length > 0 ? products.slice(0, 8) : [];
+  });
+  const [isLoading, setIsLoading] = useState(false);
   const [activeInterest, setActiveInterest] = useState('all');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);

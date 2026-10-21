@@ -67,9 +67,11 @@ import { ExitIntentModal } from './components/ExitIntentModal';
 import { InstallAppBanner } from './components/InstallAppBanner';
 
 import { useAuthStore } from './store/useAuthStore';
+import { useProductStore } from './store/useProductStore';
 
 export const App: React.FC = () => {
   const { fetchCurrentUser } = useAuthStore();
+  const { fetchProducts } = useProductStore();
   const [isAIOpen, setIsAIOpen] = useState(false);
   const [isAffiliateOpen, setIsAffiliateOpen] = useState(false);
   const [isVIPOpen, setIsVIPOpen] = useState(false);
@@ -106,7 +108,8 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     fetchCurrentUser();
-  }, [fetchCurrentUser]);
+    fetchProducts();
+  }, [fetchCurrentUser, fetchProducts]);
 
   return (
     <Router>

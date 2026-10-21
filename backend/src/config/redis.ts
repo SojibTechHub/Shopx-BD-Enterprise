@@ -27,7 +27,7 @@ class UpstashRedisClient {
 
     if (!this.isConfigured()) return null;
 
-    // 2. Fetch from Upstash Redis via JSON command body
+    // 2. Fetch from Upstash Redis with fast 500ms timeout
     try {
       const res = await axios.post(
         this.url,
@@ -37,17 +37,17 @@ class UpstashRedisClient {
             Authorization: `Bearer ${this.token}`,
             'Content-Type': 'application/json',
           },
-          timeout: 2500,
+          timeout: 500,
         }
       );
 
       if (res.data && res.data.result) {
         try {
           const parsed = JSON.parse(res.data.result);
-          this.localCache.set(key, { data: parsed, expiresAt: Date.now() + 120 * 1000 });
+          this.localCache.set(key, { data: parsed, expiresAt: Date.now() + 300 * 1000 });
           return parsed;
         } catch {
-          this.localCache.set(key, { data: res.data.result, expiresAt: Date.now() + 120 * 1000 });
+          this.localCache.set(key, { data: res.data.result, expiresAt: Date.now() + 300 * 1000 });
           return res.data.result as T;
         }
       }
@@ -58,7 +58,7 @@ class UpstashRedisClient {
   }
 
   async set(key: string, value: any, expireSeconds: number = 300): Promise<boolean> {
-    // 1. Always store in local memory cache immediately
+    // 1. Store in ultra-fast local memory cache immediately (0ms)
     this.localCache.set(key, {
       data: value,
       expiresAt: Date.now() + expireSeconds * 1000,
@@ -66,10 +66,10 @@ class UpstashRedisClient {
 
     if (!this.isConfigured()) return true;
 
-    // 2. Persist to Upstash Redis via POST JSON body
+    // 2. Persist to Upstash Redis asynchronously in background without blocking API response
     try {
       const payload = typeof value === 'string' ? value : JSON.stringify(value);
-      await axios.post(
+      axios.post(
         this.url,
         ['SET', key, payload, 'EX', expireSeconds],
         {
@@ -77,21 +77,20 @@ class UpstashRedisClient {
             Authorization: `Bearer ${this.token}`,
             'Content-Type': 'application/json',
           },
-          timeout: 3000,
+          timeout: 2000,
         }
-      );
-      return true;
+      ).catch(() => {});
     } catch {
-      // Gracefully handled by local cache
-      return true;
+      // Ignored
     }
+    return true;
   }
 
   async del(key: string): Promise<boolean> {
     this.localCache.delete(key);
     if (!this.isConfigured()) return true;
     try {
-      await axios.post(
+      axios.post(
         this.url,
         ['DEL', key],
         {
@@ -99,13 +98,11 @@ class UpstashRedisClient {
             Authorization: `Bearer ${this.token}`,
             'Content-Type': 'application/json',
           },
-          timeout: 2500,
+          timeout: 1000,
         }
-      );
-      return true;
-    } catch {
-      return true;
-    }
+      ).catch(() => {});
+    } catch {}
+    return true;
   }
 }
 

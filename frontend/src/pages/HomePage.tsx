@@ -19,11 +19,11 @@ import { ImageSearchModal } from '../components/ImageSearchModal';
 import { Product } from '../types';
 import { api } from '../services/api';
 import { useLanguageStore } from '../store/useLanguageStore';
+import { useProductStore } from '../store/useProductStore';
 import { ArrowRight, ChevronLeft, ChevronRight, Sparkles, SlidersHorizontal } from 'lucide-react';
 
 export const HomePage: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { products, fetchProducts, isLoading } = useProductStore();
   const [activeTab, setActiveTab] = useState('all');
   const { lang } = useLanguageStore();
 
@@ -41,20 +41,8 @@ export const HomePage: React.FC = () => {
   };
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await api.get('/products?limit=50');
-        if (res.data?.success) {
-          setProducts(res.data.data);
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
     fetchProducts();
-  }, []);
+  }, [fetchProducts]);
 
   // Filter tabs across all major departments
   const tabs = [

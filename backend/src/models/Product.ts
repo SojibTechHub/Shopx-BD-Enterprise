@@ -107,5 +107,12 @@ const ProductSchema = new Schema<IProduct>(
 );
 
 ProductSchema.index({ title: 'text', banglaTitle: 'text', tags: 'text', shortDescription: 'text' });
+ProductSchema.index({ status: 1, createdAt: -1 });
+ProductSchema.index({ status: 1, isFlashSale: 1 });
+ProductSchema.index({ status: 1, isFeatured: 1 });
+ProductSchema.index({ status: 1, categorySlug: 1 });
+ProductSchema.index({ status: 1, soldCount: -1 });
+ProductSchema.index({ status: 1, price: 1 });
+ProductSchema.index({ status: 1, isOrganic: 1 });
 
 export const Product = mongoose.model<IProduct>('Product', ProductSchema);

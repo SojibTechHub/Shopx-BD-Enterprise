@@ -52,6 +52,8 @@ const bdDistricts = [
   { name: 'অন্যান্য সব জেলা (Other Districts)', fee: 120, timeBn: '২-৩ দিনের মধ্যে', timeEn: 'Within 2-3 Days' },
 ];
 
+import { useProductStore } from '../store/useProductStore';
+
 export const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { addItem } = useCartStore();
@@ -59,13 +61,19 @@ export const ProductDetailPage: React.FC = () => {
   const { formatPrice } = useCurrencyStore();
   const { addProduct: recordView } = useRecentViewedStore();
 
-  const [product, setProduct] = useState<Product | null>(null);
-  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
-  const [activeImage, setActiveImage] = useState('');
+  const cachedProduct = useProductStore.getState().products.find((p) => p.slug === slug);
+  const [product, setProduct] = useState<Product | null>(() => cachedProduct || null);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>(() => {
+    if (cachedProduct) {
+      return useProductStore.getState().products.filter((p) => p._id !== cachedProduct._id).slice(0, 4);
+    }
+    return [];
+  });
+  const [activeImage, setActiveImage] = useState(() => (cachedProduct ? (cachedProduct.thumbnail || cachedProduct.images[0]) : ''));
   const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState(bdDistricts[0]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!cachedProduct);
   const [isQuickOrderOpen, setIsQuickOrderOpen] = useState(false);
   const [isLabModalOpen, setIsLabModalOpen] = useState(false);
   const [isEMIModalOpen, setIsEMIModalOpen] = useState(false);

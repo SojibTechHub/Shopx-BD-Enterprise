@@ -103,7 +103,8 @@ export const getProducts = async (req: Request, res: Response): Promise<void> =>
         .populate('category', 'name banglaName slug')
         .sort(sort)
         .skip(skip)
-        .limit(Number(limit)),
+        .limit(Number(limit))
+        .lean(),
       Product.countDocuments(query),
     ]);
 
@@ -118,9 +119,11 @@ export const getProducts = async (req: Request, res: Response): Promise<void> =>
       },
     };
 
-    // Cache product queries for 2 minutes
-    await redis.set(cacheKey, result, 120);
+    // Cache product queries for 5 minutes
+    redis.set(cacheKey, result, 300).catch(() => {});
 
+    // Browser & CDN Edge Cache headers (loads instantly on mobile)
+    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
     res.status(200).json(result);
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });

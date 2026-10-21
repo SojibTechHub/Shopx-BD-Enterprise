@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 5173",
-    "build": "tsc && vite build",
+    "build": "node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc && vite build",
     "preview": "vite preview --port 5173"
   },
   "dependencies": {

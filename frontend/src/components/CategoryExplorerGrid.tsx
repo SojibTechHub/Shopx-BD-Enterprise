@@ -2,34 +2,24 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { useLanguageStore } from '../store/useLanguageStore';
-import { api } from '../services/api';
+import { useProductStore } from '../store/useProductStore';
 import { Product } from '../types';
 import { getSafeImage } from '../utils/image';
 
 export const CategoryExplorerGrid: React.FC = () => {
   const { lang } = useLanguageStore();
-  const [productCounts, setProductCounts] = useState<Record<string, number>>({});
+  const { products } = useProductStore();
 
-  useEffect(() => {
-    const fetchCounts = async () => {
-      try {
-        const res = await api.get('/products?limit=100');
-        if (res.data?.success && Array.isArray(res.data.data)) {
-          const counts: Record<string, number> = {};
-          res.data.data.forEach((p: Product) => {
-            const slug = p.categorySlug || (typeof p.category === 'object' ? (p.category as any)?.slug : p.category);
-            if (slug) {
-              counts[slug] = (counts[slug] || 0) + 1;
-            }
-          });
-          setProductCounts(counts);
-        }
-      } catch (err) {
-        console.error(err);
+  const productCounts = React.useMemo(() => {
+    const counts: Record<string, number> = {};
+    products.forEach((p: Product) => {
+      const slug = p.categorySlug || (typeof p.category === 'object' ? (p.category as any)?.slug : p.category);
+      if (slug) {
+        counts[slug] = (counts[slug] || 0) + 1;
       }
-    };
-    fetchCounts();
-  }, []);
+    });
+    return counts;
+  }, [products]);
 
   const worldCategories = [
     {
