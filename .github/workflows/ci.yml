@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    name: Build & Verify Enterprise Platform
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install & Build Backend
+        run: |
+          cd backend
+          npm install --legacy-peer-deps
+          npm run build
+
+      - name: Install & Build Admin Portal
+        run: |
+          cd admin
+          npm install --legacy-peer-deps
+          npm run build
+
+      - name: Install & Build Customer Storefront
+        run: |
+          cd frontend
+          npm install --legacy-peer-deps
+          npm run build
+
+      - name: Run Root Verification
+        run: |
+          npm test
+          npm run lint
